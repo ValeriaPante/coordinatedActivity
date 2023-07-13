@@ -13,8 +13,7 @@ from datetime import timedelta
 
 def hashtag_coord(twitter_data, min_hashes = 5):
     # minimum of 5 hashtags; alternatives based on cosine similarity of tweets could work too
-    twitter_text = twitter_data['contentText'].values.astype(str)
-    twitter_data['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in twitter_text]
+    twitter_data['hashtag_seq'] = twitter_data['contentText'].astype(str).apply(lambda text: '__'.join([tag.strip("#") for tag in text.split() if tag.startswith("#")]))
     unique_hash_seq = twitter_data['hashtag_seq'].drop_duplicates()
     hashes = twitter_data.groupby('hashtag_seq')
     duplicate_hash_users = {}
