@@ -29,16 +29,23 @@ def get_tweet_timestamp(tid):
 #   - 'userid' is the user ID of the retweet
 #   - 'tweetid' is the tweet ID of the retweet
 #   - 'retweet_tweetid' is the tweet ID of the retweeted tweet
+#   - 'retweet_userid' is the user ID of the creator of the retweetd tweet
 # timeInterval: time distance between retweet and original tweet under which a retweet is considered fast
+# minRetweets: minimum number of fast retweets per user
     
-def fast_retweet(data, timeInterval):
+def fast_retweet(data, timeInterval, minRetweets = 1):
 
-    data['tweetid'] = data['tweetid'].astype(int)
     data['retweet_tweetid'] = data['retweet_tweetid'].astype(int)
-    data['tweetTime'] = data['tweetid'].apply(lambda x: get_tweet_timestamp(x))
     data['original_ts'] = data['retweet_tweetid'].apply(lambda x: get_tweet_timestamp(x))
+    data['tweetid'] = data['tweetid'].astype(int)
+    data['tweetTime'] = data['tweetid'].apply(lambda x: get_tweet_timestamp(x))
+    data['delta'] = (data['tweetTime'] - data['original_ts']).dt.seconds
     
-    data['timeDifference'] = data['tweetTime'] - data['original_ts']
-    data['predicted'] = data['timeDifference'].apply(lambda x: 1 if x <= timedelta(seconds=timeInterval) else 0)
+    data = data.loc[data['delta'] <= timeInterval]
     
-    return data[['userid', 'predicted']].groupby('userid', as_index=False).max()
+    data = data.groupby(['userid', 'retweet_userid'],as_index=False).count()
+    data = data.loc[data['delta'] > minRetweets]
+    
+    graph = nx.from_pandas_edgelist(data, 'userid', 'retweet_userid','delta')
+    
+    return graph
