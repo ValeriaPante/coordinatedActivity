@@ -34,7 +34,7 @@ def coRetweet(control, treated):
     retweetVectors['retweets'] = retweetVectors['userid'].apply(lambda x: ' '.join(cum.loc[cum['userid']==x]['retweet_tweetid'].astype(str).to_list()))
     del cum
     
-    vectorizer = TfidfVectorizer()
+    vectorizer = TfidfVectorizer(lowercase=False, token_pattern='\S+')
     tfidf_matrix = vectorizer.fit_transform(retweetVectors['retweets'])
     similarities = cosine_similarity(tfidf_matrix)
 
