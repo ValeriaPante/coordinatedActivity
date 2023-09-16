@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import networkx as nx
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Data assumptions:
@@ -12,38 +12,35 @@ from sklearn.metrics.pairwise import cosine_similarity
 def coRetweet(control, treated):
     control.dropna(inplace=True)
     
-    control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(dict(x)['id']))
-    control['userid'] = control['user'].apply(lambda x: int(dict(x)['id']))
-    control['tweet_timestamp'] = control['id'].apply(lambda x: get_tweet_timestamp(int(x)))
-    control['retweet_timestamp'] = control['retweet_id'].apply(lambda x: get_tweet_timestamp(int(x)))
-    control = control[['id', 'userid', 'retweet_id', 'tweet_timestamp', 'retweet_timestamp']]
-    control.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp']
+    control['userid'] = control['user'].apply(lambda x: dict(x)['id'])
+    control['urls'] = control['entities'].apply(lambda x: dict(x)['urls'])
+    control = control[['userid', 'urls']].explode('urls')
+    control.dropna(inplace=True)
+    control['urls'] = control['urls'].apply(lambda x: str(dict(x)['expanded_url'].replace(',', '.')) if x else np.NaN)
     
-    treated['retweet_tweetid'] = treated['retweet_tweetid'].astype(int)
-    treated['tweet_timestamp'] = treated['tweetid'].apply(lambda x: get_tweet_timestamp(int(x)))
-    treated['retweet_timestamp'] = treated['retweet_tweetid'].apply(lambda x: get_tweet_timestamp(int(x)))
+    treated['urls'] = treated['urls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
+    treated = treated.loc[treated['urls'] != ''].explode('urls')
     
-    cum = pd.concat([treated, control])
-    filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
-    filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
-    cum = cum.loc[cum['userid'].isin(filt)]
-    cum = cum[['userid', 'retweet_tweetid', 'tweetid']].groupby(['userid', 'retweet_tweetid'],as_index=False).size()
-    cum.columns = ['userid', 'retweet_tweetid','size']
+    cum = pd.concat([control, treated])[['userid', 'urls']].dropna()
+    cum.drop_duplicates(inplace=True)
+
+    temp = cum.groupby('urls', as_index=False).count()
+    cum = cum.loc[cum['urls'].isin(temp.loc[c['userid']>1]['urls'].to_list())]
+
+    cum['value'] = 1
+    cum = pd.pivot_table(cum,'value', 'userid', 'urls', aggfunc='max')
+    cum.fillna(0, inplace = True)
     
-    retweetVectors = pd.DataFrame(cum['userid'].drop_duplicates().to_list(), columns=['userid'])
-    retweetVectors['retweets'] = retweetVectors['userid'].apply(lambda x: ' '.join(cum.loc[cum['userid']==x]['retweet_tweetid'].astype(str).to_list()))
-    del cum
-    
-    vectorizer = TfidfVectorizer(lowercase=False, token_pattern='\S+')
-    tfidf_matrix = vectorizer.fit_transform(retweetVectors['retweets'])
+    vectorizer = TfidfTransformer()
+    tfidf_matrix = vectorizer.fit_transform(cum)
     similarities = cosine_similarity(tfidf_matrix)
 
     df_adj = pd.DataFrame(similarities)
     del similarities
-    df_adj.index = retweetVectors['userid'].astype(str).to_list()
-    df_adj.columns = retweetVectors['userid'].astype(str).to_list()
+    df_adj.index = cum['userid'].astype(str).to_list()
+    df_adj.columns = cum['userid'].astype(str).to_list()
     G = nx.from_pandas_adjacency(df_adj)
-    del df_adj, retweetVectors
+    del df_adj, cum
     
     G.remove_nodes_from(list(nx.isolates(G)))
 

@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import networkx as nx
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Data assumptions:
@@ -86,20 +86,25 @@ def hashSeq(control, treated, minHashtags = 5):
     
     cum.drop_duplicates(inplace=True)
     
-    hashVectors = pd.DataFrame(cum['twitterAuthorScreenname'].drop_duplicates().to_list(), columns=['twitterAuthorScreenname'])
-    hashVectors['hashtag_seq'] = hashVectors['twitterAuthorScreenname'].apply(lambda x: ' '.join(cum.loc[cum['twitterAuthorScreenname']==x]['hashtag_seq'].astype(str).to_list()))
-    del cum
+    temp = cum.groupby('hashtag_seq', as_index=False).count()
+    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[c['twitterAuthorScreenname']>1]['hashtag_seq'].to_list())]
+
+    cum['value'] = 1
+    cum = pd.pivot_table(cum,'value', 'twitterAuthorScreenname', 'hashtag_seq', aggfunc='max')
+    cum.fillna(0, inplace = True)
     
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(hashVectors['hashtag_seq'])
+    vectorizer = TfidfTransformer()
+    tfidf_matrix = vectorizer.fit_transform(cum)
     similarities = cosine_similarity(tfidf_matrix)
+    
+    del cum
 
     df_adj = pd.DataFrame(similarities)
     del similarities
-    df_adj.index = hashVectors['twitterAuthorScreenname'].astype(str).to_list()
-    df_adj.columns = hashVectors['twitterAuthorScreenname'].astype(str).to_list()
+    df_adj.index = cum['twitterAuthorScreenname'].astype(str).to_list()
+    df_adj.columns = cum['twitterAuthorScreenname'].astype(str).to_list()
     G = nx.from_pandas_adjacency(df_adj)
-    del df_adj, hashVectors
+    del df_adj, cum
     
     G.remove_nodes_from(list(nx.isolates(G)))
 

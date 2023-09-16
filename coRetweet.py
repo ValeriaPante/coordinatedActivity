@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import networkx as nx
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 # Data assumptions:
@@ -24,23 +24,25 @@ def coRetweet(control, treated):
     filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
     filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
     cum = cum.loc[cum['userid'].isin(filt)]
-    cum = cum[['userid', 'retweet_tweetid', 'tweetid']].groupby(['userid', 'retweet_tweetid'],as_index=False).size()
-    cum.columns = ['userid', 'retweet_tweetid','size']
+    cum = cum[['userid', 'retweet_tweetid']].drop_duplicates
+
+    temp = cum.groupby('retweet_tweetid', as_index=False).count()
+    cum = cum.loc[cum['retweet_tweetid'].isin(temp.loc[c['userid']>1]['retweet_tweetid'].to_list())]
+
+    cum['value'] = 1
+    cum = pd.pivot_table(cum,'value', 'userid', 'retweet_tweetid', aggfunc='max')
+    cum.fillna(0, inplace = True)
     
-    retweetVectors = pd.DataFrame(cum['userid'].drop_duplicates().to_list(), columns=['userid'])
-    retweetVectors['retweets'] = retweetVectors['userid'].apply(lambda x: ' '.join(cum.loc[cum['userid']==x]['retweet_tweetid'].astype(str).to_list()))
-    del cum
-    
-    vectorizer = TfidfVectorizer()
-    tfidf_matrix = vectorizer.fit_transform(retweetVectors['retweets'])
+    vectorizer = TfidfTransformer()
+    tfidf_matrix = vectorizer.fit_transform(cum)
     similarities = cosine_similarity(tfidf_matrix)
 
     df_adj = pd.DataFrame(similarities)
     del similarities
-    df_adj.index = retweetVectors['userid'].astype(str).to_list()
-    df_adj.columns = retweetVectors['userid'].astype(str).to_list()
+    df_adj.index = cum['userid'].astype(str).to_list()
+    df_adj.columns = cum['userid'].astype(str).to_list()
     G = nx.from_pandas_adjacency(df_adj)
-    del df_adj, retweetVectors
+    del df_adj, cum
     
     G.remove_nodes_from(list(nx.isolates(G)))
 
