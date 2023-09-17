@@ -87,7 +87,7 @@ def hashSeq(control, treated, minHashtags = 5):
     cum.drop_duplicates(inplace=True)
     
     temp = cum.groupby('hashtag_seq', as_index=False).count()
-    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[c['twitterAuthorScreenname']>1]['hashtag_seq'].to_list())]
+    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['twitterAuthorScreenname']>1]['hashtag_seq'].to_list())]
 
     cum['value'] = 1
     cum = pd.pivot_table(cum,'value', 'twitterAuthorScreenname', 'hashtag_seq', aggfunc='max')
