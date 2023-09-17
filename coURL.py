@@ -25,7 +25,7 @@ def coRetweet(control, treated):
     cum.drop_duplicates(inplace=True)
 
     temp = cum.groupby('urls', as_index=False).count()
-    cum = cum.loc[cum['urls'].isin(temp.loc[c['userid']>1]['urls'].to_list())]
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
 
     cum['value'] = 1
     cum = pd.pivot_table(cum,'value', 'userid', 'urls', aggfunc='max')
