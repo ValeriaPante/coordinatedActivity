@@ -39,10 +39,10 @@ def coRetweet(control, treated):
 
     df_adj = pd.DataFrame(similarities)
     del similarities
-    df_adj.index = cum['userid'].astype(str).to_list()
-    df_adj.columns = cum['userid'].astype(str).to_list()
+    df_adj.index = temp['userid'].astype(str).to_list()
+    df_adj.columns = temp['userid'].astype(str).to_list()
     G = nx.from_pandas_adjacency(df_adj)
-    del df_adj, cum
+    del df_adj, cum, temp
     
     G.remove_nodes_from(list(nx.isolates(G)))
 
