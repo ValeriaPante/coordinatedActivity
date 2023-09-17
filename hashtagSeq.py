@@ -101,8 +101,8 @@ def hashSeq(control, treated, minHashtags = 5):
 
     df_adj = pd.DataFrame(similarities)
     del similarities
-    df_adj.index = temp['twitterAuthorScreenname'].astype(str).to_list()
-    df_adj.columns = temp['twitterAuthorScreenname'].astype(str).to_list()
+    df_adj.index = cum.index.astype(str).to_list()
+    df_adj.columns = cum.index.astype(str).to_list()
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj, temp
     
