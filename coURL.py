@@ -28,19 +28,35 @@ def coRetweet(control, treated):
     cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
 
     cum['value'] = 1
-    cum = pd.pivot_table(cum,'value', 'userid', 'urls', aggfunc='max')
-    cum.fillna(0, inplace = True)
+    urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
+    cum['urls'] = cum['urls'].apply(lambda x: urls[x]).astype(int)
+    del urls
+
+    userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
+    cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
+    
+    person_c = CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
+    thing_c = CategoricalDtype(sorted(cum.urls.unique()), ordered=True)
+    
+    row = cum.userid.astype(person_c).cat.codes
+    col = cum.urls.astype(thing_c).cat.codes
+    sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
+    del row, col, person_c, thing_c
+
+    #cum = pd.pivot_table(cum,'value', 'userid', 'urls', aggfunc='max')
+    #cum.fillna(0, inplace = True)
     
     vectorizer = TfidfTransformer()
-    tfidf_matrix = vectorizer.fit_transform(cum)
-    similarities = cosine_similarity(tfidf_matrix)
+    tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
+    similarities = cosine_similarity(tfidf_matrix, dense_output=False)
 
-    df_adj = pd.DataFrame(similarities)
+
+    df_adj = pd.DataFrame(similarities.toarray())
     del similarities
-    df_adj.index = cum.index.astype(str).to_list()
-    df_adj.columns = cum.index.astype(str).to_list()
+    df_adj.index = userid.keys()
+    df_adj.columns = userid.keys()
     G = nx.from_pandas_adjacency(df_adj)
-    del df_adj, cum, temp
+    del df_adj
     
     G.remove_nodes_from(list(nx.isolates(G)))
 
