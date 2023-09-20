@@ -26,7 +26,7 @@ def coRetweet(control, treated):
     filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
     filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
     cum = cum.loc[cum['userid'].isin(filt)]
-    cum = cum[['userid', 'retweet_tweetid']].drop_duplicates
+    cum = cum[['userid', 'retweet_tweetid']].drop_duplicates()
 
     temp = cum.groupby('retweet_tweetid', as_index=False).count()
     cum = cum.loc[cum['retweet_tweetid'].isin(temp.loc[temp['userid']>1]['retweet_tweetid'].to_list())]
