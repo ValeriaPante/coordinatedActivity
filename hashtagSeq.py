@@ -90,21 +90,36 @@ def hashSeq(control, treated, minHashtags = 5):
     cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['twitterAuthorScreenname']>1]['hashtag_seq'].to_list())]
 
     cum['value'] = 1
-    cum = pd.pivot_table(cum,'value', 'twitterAuthorScreenname', 'hashtag_seq', aggfunc='max')
-    cum.fillna(0, inplace = True)
+    
+    hashs = dict(zip(list(cum.hashtag_seq.unique()), list(range(cum.hashtag_seq.unique().shape[0]))))
+    cum['hashtag_seq'] = cum['hashtag_seq'].apply(lambda x: hashs[x]).astype(int)
+    del urls
+
+    userid = dict(zip(list(cum.twitterAuthorScreenname.astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
+    cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x]).astype(int)
+    
+    person_c = CategoricalDtype(sorted(cum.twitterAuthorScreenname.unique()), ordered=True)
+    thing_c = CategoricalDtype(sorted(cum.hashtag_seq.unique()), ordered=True)
+    
+    row = cum.twitterAuthorScreenname.astype(person_c).cat.codes
+    col = cum.hashtag_seq.astype(thing_c).cat.codes
+    sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
+    del row, col, person_c, thing_c
+
+    #cum = pd.pivot_table(cum,'value', 'userid', 'urls', aggfunc='max')
+    #cum.fillna(0, inplace = True)
     
     vectorizer = TfidfTransformer()
-    tfidf_matrix = vectorizer.fit_transform(cum)
-    similarities = cosine_similarity(tfidf_matrix)
-    
-    del cum
+    tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
+    similarities = cosine_similarity(tfidf_matrix, dense_output=False)
 
-    df_adj = pd.DataFrame(similarities)
+
+    df_adj = pd.DataFrame(similarities.toarray())
     del similarities
-    df_adj.index = cum.index.astype(str).to_list()
-    df_adj.columns = cum.index.astype(str).to_list()
+    df_adj.index = userid.keys()
+    df_adj.columns = userid.keys()
     G = nx.from_pandas_adjacency(df_adj)
-    del df_adj, temp
+    del df_adj
     
     G.remove_nodes_from(list(nx.isolates(G)))
 
