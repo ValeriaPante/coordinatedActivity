@@ -35,7 +35,7 @@ def coRetweet(control, treated):
     
     ids = dict(zip(list(cum.retweet_tweetid.unique()), list(range(cum.retweet_tweetid.unique().shape[0]))))
     cum['retweet_tweetid'] = cum['retweet_tweetid'].apply(lambda x: ids[x]).astype(int)
-    del urls
+    del ids
 
     userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
