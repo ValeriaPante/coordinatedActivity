@@ -93,7 +93,7 @@ def hashSeq(control, treated, minHashtags = 5):
     
     hashs = dict(zip(list(cum.hashtag_seq.unique()), list(range(cum.hashtag_seq.unique().shape[0]))))
     cum['hashtag_seq'] = cum['hashtag_seq'].apply(lambda x: hashs[x]).astype(int)
-    del urls
+    del hashs
 
     userid = dict(zip(list(cum.twitterAuthorScreenname.astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
     cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x]).astype(int)
