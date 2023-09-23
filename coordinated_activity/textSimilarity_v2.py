@@ -30,6 +30,7 @@ import gzip
 import glob
 from datetime import datetime
 from datetime import timedelta
+import networkx as nx
 
 # MAIN FUNCTION at line 199
 
@@ -351,16 +352,16 @@ def getSimilarityNetwork(inputDir):
         
         l = d[fil]
         if i == 0:
-            combined = pd.read_csv(path+l[0])
+            combined = pd.read_csv(os.path.join(inputDir,l[0]))
             combined['weight'] = thr
             i += 1
             for o in l[1:]:
-                temp = pd.read_csv(path+o)
+                temp = pd.read_csv(os.path.join(inputDir,o))
                 temp['weight'] = thr
                 combined = pd.concat([combined, temp])
         else:
             for o in l:
-                temp = pd.read_csv(path+o)
+                temp = pd.read_csv(os.path.join(inputDir,o))
                 temp['weight'] = thr
                 combined = pd.concat([combined, temp])
     

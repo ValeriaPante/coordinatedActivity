@@ -12,8 +12,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 def coRetweet(control, treated):
     control.dropna(inplace=True)
     
-    control['userid'] = control['user'].apply(lambda x: dict(x)['id'])
-    control['urls'] = control['entities'].apply(lambda x: dict(x)['urls'])
+    control['userid'] = control['user'].apply(lambda x: eval(x)['id'])
+    control['urls'] = control['entities'].apply(lambda x: eval(x)['urls'])
     control = control[['userid', 'urls']].explode('urls')
     control.dropna(inplace=True)
     control['urls'] = control['urls'].apply(lambda x: str(dict(x)['expanded_url'].replace(',', '.')) if x else np.NaN)

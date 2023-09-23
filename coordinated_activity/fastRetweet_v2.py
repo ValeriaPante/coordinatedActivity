@@ -6,13 +6,18 @@ from datetime import timedelta
 
 # retrieves tweet's timestamp from its ID
 def get_tweet_timestamp(tid):
-    try:
-        offset = 1288834974657
-        tstamp = (tid >> 22) + offset
-        utcdttime = datetime.utcfromtimestamp(tstamp/1000)
-        return utcdttime
-    except:
-        return None   
+#    try:
+#        offset = 1288834974657
+#        tstamp = (tid >> 22) + offset
+#        utcdttime = datetime.utcfromtimestamp(tstamp/1000)
+#        return utcdttime
+#    except:
+#        return None  
+
+    offset = 1288834974657
+    tstamp = (tid >> 22) + offset
+    utcdttime = datetime.utcfromtimestamp(tstamp/1000)
+    return utcdttime
 
 
 # Data assumptions:
@@ -22,16 +27,28 @@ def get_tweet_timestamp(tid):
 # timeInterval: time distance in seconds between retweet and original tweet under which a retweet is considered fast
 
 def fastRetweet(control, treated, timeInterval = 10):
+
+    #print(list(control['id'].values)[:3])
     control.dropna(inplace=True)
     treated.dropna(inplace=True)
     
-    control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(dict(x)['id']))
-    control['retweet_userid'] = control['retweeted_status'].apply(lambda x: int(dict(dict(x)['user'])['id']))
-    control['userid'] = control['user'].apply(lambda x: int(dict(x)['id']))
+    print(len(set(control['id'].values)))
+    
+    #control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(dict(x)['id']))
+    #control['retweet_userid'] = control['retweeted_status'].apply(lambda x: int(dict(dict(x)['user'])['id']))
+    #control['userid'] = control['user'].apply(lambda x: int(dict(x)['id']))
+    
+    control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(eval(x)['id']))
+    control['retweet_userid'] = control['retweeted_status'].apply(lambda x: int(dict(eval(x)['user'])['id']))
+    control['userid'] = control['user'].apply(lambda x: int(eval(x)['id']))
+    
+    
     control['tweet_timestamp'] = control['id'].apply(lambda x: get_tweet_timestamp(int(x)))
     control['retweet_timestamp'] = control['retweet_id'].apply(lambda x: get_tweet_timestamp(int(x)))
     control = control[['id', 'userid', 'retweet_id', 'tweet_timestamp', 'retweet_timestamp', 'retweet_userid']]
     control.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp', 'retweet_userid']
+    
+    print("tweet",len(control["tweet_timestamp"].values))
     
     treated['retweet_tweetid'] = treated['retweet_tweetid'].astype(int)
     treated['tweet_timestamp'] = treated['tweetid'].apply(lambda x: get_tweet_timestamp(int(x)))

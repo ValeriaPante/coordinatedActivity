@@ -20,7 +20,8 @@ def hashSeq(control, treated, minHashtags = 5):
     eng = []
     for row in control[['retweeted_status', 'user', 'in_reply_to_status_id']].values:
         if row[0] != None:
-            u = dict(row[0])
+            #u = dict(row[0])
+            u = eval(row[0])
             retweet_id.append(u['id'])
             eng.append('retweet')
         elif row[2] != None:
@@ -29,7 +30,8 @@ def hashSeq(control, treated, minHashtags = 5):
         else:
             retweet_id.append(None)
             eng.append('tweet')
-        u = dict(row[1])
+        #u = dict(row[1])
+        u  = eval(row[1])
         names.append(u['id'])
     
     control['twitterAuthorScreenname'] = names

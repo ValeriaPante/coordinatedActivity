@@ -12,22 +12,37 @@ from pandas.api.types import CategoricalDtype
 #     - treated: information Operation dataset -> includes only columns ['tweetid', 'userid', 'retweet_tweetid']
 
 def coRetweet(control, treated):
+
+
     control.dropna(inplace=True)
     treated.dropna(inplace=True)
     
-    control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(dict(x)['id']))
-    control['userid'] = control['user'].apply(lambda x: int(dict(x)['id']))
-    control = control[['id', 'userid', 'retweet_id', 'tweet_timestamp', 'retweet_timestamp']]
-    control.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp']
+    control = control.ffill()
+    treated = treated.ffill()
     
+    # Old Code
+    #control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(dict(x)['id']))
+    #control['userid'] = control['user'].apply(lambda x: int(dict(x)['id']))
+    
+    # New Code
+    control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(eval(x)['id']))
+    control['userid'] = control['user'].apply(lambda x: int(eval(x)['id']))
+    
+    #control = control[['id', 'userid', 'retweet_id', 'tweet_timestamp', 'retweet_timestamp']]
+    #control.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp']
+    
+    control = control[['id', 'userid', 'retweet_id']]
+    control.columns = ['tweetid', 'userid', 'retweet_tweetid']
+
     treated['retweet_tweetid'] = treated['retweet_tweetid'].astype(int)
     
     cum = pd.concat([treated, control])
     filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
     filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
+    #print(filt)
     cum = cum.loc[cum['userid'].isin(filt)]
     cum = cum[['userid', 'retweet_tweetid']].drop_duplicates()
-
+    
     temp = cum.groupby('retweet_tweetid', as_index=False).count()
     cum = cum.loc[cum['retweet_tweetid'].isin(temp.loc[temp['userid']>1]['retweet_tweetid'].to_list())]
 
@@ -35,8 +50,8 @@ def coRetweet(control, treated):
     
     ids = dict(zip(list(cum.retweet_tweetid.unique()), list(range(cum.retweet_tweetid.unique().shape[0]))))
     cum['retweet_tweetid'] = cum['retweet_tweetid'].apply(lambda x: ids[x]).astype(int)
-    del urls
-
+    #del urls
+    print("CUM",len(set(cum['userid'])))
     userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
