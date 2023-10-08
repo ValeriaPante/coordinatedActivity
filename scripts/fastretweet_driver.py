@@ -6,7 +6,7 @@ import pickle
 import networkx as nx
 import gzip
 
-from coordinatedActivity.fastRetweet import *
+from coordinatedActivity.v3_scripts.fastRetweet_v3 import *
 
 root_dir = "/project/ll_774_951/InfoOpsNationwiseDriverControl"
 dataset_dir = "/scratch1/ashwinba/consolidated"

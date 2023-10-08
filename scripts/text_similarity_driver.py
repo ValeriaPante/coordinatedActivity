@@ -7,7 +7,7 @@ import networkx as nx
 
 import pickle
 
-from coordinatedActivity.textSimilarity import *
+from coordinatedActivity.v3_scripts.textSimilarity_v3 import *
 
 OUTPUT_DIR = "/scratch1/ashwinba/graphs"
 root_dir = "/project/ll_774_951/InfoOpsNationwiseDriverControl"
