@@ -110,7 +110,7 @@ def hashSeq(control, treated, minHashtags = 5):
     cum = cum.loc[cum['engagementType'] != 'retweet']
     
     # Changing to dask dataframe
-    cum = dd.from_pandas(dask)
+    cum = dd.from_pandas(cum)
     
     cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
     cum.drop('contentText', axis=1, inplace=True)
