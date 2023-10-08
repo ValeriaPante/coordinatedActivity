@@ -30,4 +30,4 @@ dataset_dirs = []
 #textSim(dataset_dirs,OUTPUT_DIR)
 g = getSimilarityNetwork(OUTPUT_DIR)
 # Saving Graph in GML File
-nx.write_gml(G,os.path.join(OUTPUT_GRAPH_DIR,"text_sim.gml.gz"))
+nx.write_gml(g,os.path.join(OUTPUT_GRAPH_DIR,"text_sim.gml.gz"))

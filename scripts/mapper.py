@@ -5,7 +5,7 @@ import os
 import gzip
 
 def get_negative_data(control_data,country_name):
-    control_data['userid'] = control_data['user'].apply(lambda x: int(eval(x)['id']))
+    control_data['userid'] = control_data['user'].apply(lambda x: int(dict(x)['id']))
     if(country_name == 'uae'  or country_name == 'egypt'):
         control_data['country'] = "UAE_EGYPT"
     else:
@@ -61,15 +61,20 @@ def GenerateDatasets(datasetsPaths):
     del treated
     neg_en_df_all = control
     del control
+    
+    print(pos_en_df_all['country'].unique())
+    print(neg_en_df_all['country'].unique())
 
     pos_en_df_all.to_csv("/scratch1/ashwinba/consolidated/treated_consolidated_ids.csv.gz", index=False, compression='gzip')
     neg_en_df_all.to_csv("/scratch1/ashwinba/consolidated/control_consolidated_ids.csv.gz", index=False, compression='gzip')
 
 root_dir = "/project/ll_774_951/InfoOpsNationwiseDriverControl"
 countries_dir = os.listdir("/project/ll_774_951/InfoOpsNationwiseDriverControl")
+countries_to_be_removed = ['venezuela_set2','egypt']
+for c in countries_to_be_removed:countries_dir.remove(c)
+    
 
 dataset_dirs = []
-
 for country in countries_dir:
     files_dir = os.listdir(os.path.join(root_dir,country))
 

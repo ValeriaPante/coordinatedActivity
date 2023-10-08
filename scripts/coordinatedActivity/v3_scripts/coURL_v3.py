@@ -4,6 +4,8 @@ import networkx as nx
 from sklearn.preprocessing import LabelEncoder
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from scipy.sparse import csr_matrix
+
 
 # Data assumptions:
 #   - 2 Pandas dataframes
@@ -35,13 +37,13 @@ def coRetweet(control, treated):
     cum['urls'] = cum['urls'].apply(lambda x: urls[x]).astype(int)
     del urls
 
-    #userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
-    #cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
+    userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
+    cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
-    cum['userid'] = le.fit_transform(cum['userid'])
+    #cum['userid'] = le.fit_transform(cum['userid'].astype(int))
     
-    person_c = CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
-    thing_c = CategoricalDtype(sorted(cum.urls.unique()), ordered=True)
+    person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
+    thing_c = pd.CategoricalDtype(sorted(cum.urls.unique()), ordered=True)
     
     row = cum.userid.astype(person_c).cat.codes
     col = cum.urls.astype(thing_c).cat.codes
@@ -55,11 +57,13 @@ def coRetweet(control, treated):
     tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
     similarities = cosine_similarity(tfidf_matrix, dense_output=False)
 
-
     df_adj = pd.DataFrame(similarities.toarray())
     del similarities
+    #df_adj.index = list(set(le.inverse_transform(cum['userid'].values)))
+    #df_adj.columns = list(set(le.inverse_transform(cum['userid'].values)))
     df_adj.index = userid.keys()
     df_adj.columns = userid.keys()
+    
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj
     

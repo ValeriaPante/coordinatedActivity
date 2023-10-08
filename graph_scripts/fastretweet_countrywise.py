@@ -21,14 +21,17 @@ def generate_country_wise(mapper1,mapper2,graph):
 
     # Initialize Vertices
     for country in countries:
-        G1.add_node(country)    
+        G1.add_node(country) 
+        
+        
+    userids = list(mapper1['userid'].values) + list(mapper2['userid'].values)
 
 
     vertices = list(set(graph.nodes))
     for v in vertices:
         vertice = str(int(eval(v.strip())))
         # Generate Country Wise
-        if(vertice in list(mapper1['userid'].values) or vertice in list(mapper2['userid'].values)):
+        if(vertice in userids):
             try:
                 from_c = list(mapper1[mapper1['userid'] == vertice]['country'].values)[0]
             except IndexError:
@@ -59,12 +62,12 @@ def generate_country_wise(mapper1,mapper2,graph):
         
     # Save
     nx.draw(G1, with_labels=True, font_weight='normal')
-    plt.savefig("/scratch1/ashwinba/cache/plt_countrywise_courl_img.png")
+    plt.savefig("/scratch1/ashwinba/cache/plt_countrywise_fastretweet_img.png")
 
     print("Executed")
 
     
-RAW_GRAPH_DIR = "/scratch1/ashwinba/cache/co_url.gml.gz"
+RAW_GRAPH_DIR = "/scratch1/ashwinba/cache/fast_retweet.gml.gz"
 MAPPER_DIR = "/scratch1/ashwinba/consolidated"
 CONTROL_MAPPER_DIR = "control_consolidated_ids.csv.gz"
 TREATED_MAPPER_DIR = "treated_consolidated_ids.csv.gz"
@@ -75,3 +78,4 @@ mapper2 = pd.read_csv(os.path.join(MAPPER_DIR,TREATED_MAPPER_DIR),compression='g
 
 # Calling Function
 generate_country_wise(mapper1,mapper2,G)
+

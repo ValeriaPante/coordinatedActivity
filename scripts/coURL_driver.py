@@ -18,6 +18,10 @@ control_df = pd.read_csv(os.path.join(dataset_dir,"control_consolidated_raw.csv.
 #['user', 'entities', 'id']
 #     - treated: information Operation dataset -> includes only columns ['tweetid', 'userid', 'urls']
 
+print(len(control_df['country'].unique()))
+print(len(treated_df['country'].unique()))
+
+
 control_df = control_df[['user', 'entities', 'id']]
 treated_df = treated_df[['tweetid', 'userid', 'urls']]
 G = coRetweet(control_df, treated_df)
