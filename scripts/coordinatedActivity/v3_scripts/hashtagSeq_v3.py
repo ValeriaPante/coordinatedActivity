@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
 import dask
+import dask.dataframe as dd
 
 # Data assumptions:
 #   - 2 Pandas dataframes
@@ -108,7 +109,8 @@ def hashSeq(control, treated, minHashtags = 5):
     
     cum = cum.loc[cum['engagementType'] != 'retweet']
     
-    cum = dask.dataframe.from_pandas(dask)
+    # Changing to dask dataframe
+    cum = dd.from_pandas(dask)
     
     cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
     cum.drop('contentText', axis=1, inplace=True)

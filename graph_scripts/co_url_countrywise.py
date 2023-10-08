@@ -14,7 +14,6 @@ def generate_country_wise(mapper1,mapper2,graph):
     vertices = list(set(graph.nodes))
     warnings.warn("Total Vertices :"+str(len(vertices)))
     
-    
     mapper1['class_label'] = "control"
     mapper2['class_label'] = "treated"
     
@@ -28,15 +27,18 @@ def generate_country_wise(mapper1,mapper2,graph):
     del mapper1
     del mapper2
     
-    colormaps= []
     attributes = {}
     counter = 0
     warnings.warn("Starting to work")
     for v in vertices:
+        # Temp dict
+        temp_dict = {}
+
+        # Counter for progress
         counter+=1
+
         if(counter%10 == 0):
             warnings.warn(str(counter) + " work done")
-        temp_dict = {}
         
         if((merged['userid'] == v).any()):
             temp_dict['class_label'] = merged[merged.userid == v].iloc[0]['class_label']
@@ -54,14 +56,12 @@ def generate_country_wise(mapper1,mapper2,graph):
 
         attributes[v] = temp_dict
             
-  
     # Save
     nx.set_node_attributes(graph,attributes)
     nx.draw(graph, with_labels=True, font_weight='normal')
     nx.write_gexf(graph,"/scratch1/ashwinba/cache/plt_countrywise_courl_img1.gexf")
     print("done")
 
-    
 RAW_GRAPH_DIR = "/scratch1/ashwinba/cache/coURL.gml.gz"
 MAPPER_DIR = "/scratch1/ashwinba/consolidated"
 CONTROL_MAPPER_DIR = "control_consolidated_raw.csv.gz"
