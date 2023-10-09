@@ -12,7 +12,7 @@ from coordinatedActivity.v3_scripts.textSimilarity_v3 import *
 OUTPUT_DIR = "/scratch1/ashwinba/graphs"
 root_dir = "/project/ll_774_951/InfoOpsNationwiseDriverControl"
 countries_dir = os.listdir("/project/ll_774_951/InfoOpsNationwiseDriverControl")
-OUTPUT_GRAPH_DIR = "./scratch1/ashwinba/cache"
+OUTPUT_GRAPH_DIR = "/scratch1/ashwinba/cache"
 dataset_dirs = []
 
 '''for country in countries_dir:

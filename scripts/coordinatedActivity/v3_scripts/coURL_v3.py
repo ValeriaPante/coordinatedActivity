@@ -15,13 +15,16 @@ from scipy.sparse import csr_matrix
 le = LabelEncoder()
 
 def coRetweet(control, treated):
+
+    # Removing NaN Records
     control.dropna(inplace=True)
+    treated.dropna(inplace=True)
     
     control['userid'] = control['user'].apply(lambda x: eval(x)['id'])
     control['urls'] = control['entities'].apply(lambda x: eval(x)['urls'])
     control = control[['userid', 'urls']].explode('urls')
-    control.dropna(inplace=True)
-    control['urls'] = control['urls'].apply(lambda x: str(dict(x)['expanded_url'].replace(',', '.')) if x else np.NaN)
+    #control.dropna(inplace=True)
+    control['urls'] = control['urls'].apply(lambda x: str(dict(x)['expanded_url']).replace(',', '.') if x else np.NaN)
     
     treated['urls'] = treated['urls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
     treated = treated.loc[treated['urls'] != ''].explode('urls')
@@ -36,6 +39,9 @@ def coRetweet(control, treated):
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
     cum['urls'] = cum['urls'].apply(lambda x: urls[x]).astype(int)
     del urls
+    
+    # Changing Datatype to string
+    cum['userid'] = cum['userid'].astype(str)
 
     userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
