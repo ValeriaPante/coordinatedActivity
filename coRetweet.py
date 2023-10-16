@@ -17,8 +17,8 @@ def coRetweet(control, treated):
     
     control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(dict(x)['id']))
     control['userid'] = control['user'].apply(lambda x: int(dict(x)['id']))
-    control = control[['id', 'userid', 'retweet_id', 'tweet_timestamp', 'retweet_timestamp']]
-    control.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp']
+    control = control[['id', 'userid', 'retweet_id']]
+    control.columns = ['tweetid', 'userid', 'retweet_tweetid']
     
     treated['retweet_tweetid'] = treated['retweet_tweetid'].astype(int)
     
