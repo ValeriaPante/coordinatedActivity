@@ -9,7 +9,10 @@ import warnings
 
 def generate_country_wise(mapper1,mapper2,graph):
     # Generate Vertices
+    #warnings.warn(str(list(graph.nodes)))
+    graph.remove_nodes_from(["None"])
     graph = nx.relabel_nodes(graph, lambda x: str(int(eval(x.strip()))))
+    
     graph.remove_edges_from(list(nx.selfloop_edges(G)))
     vertices = list(set(graph.nodes))
     warnings.warn("Total Vertices :"+str(len(vertices)))

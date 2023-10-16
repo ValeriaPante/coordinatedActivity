@@ -4,6 +4,10 @@ import math as mt
 import networkx as nx
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
+from scipy.sparse import csr_matrix
+
+# Importing LabelEncoder
+from sklearn.preprocessing import LabelEncoder
 
 # Importing nltk
 from nltk.corpus import stopwords
@@ -112,7 +116,7 @@ def hashSeq(control, treated, minHashtags = 5):
             #u = dict(row[0])
             u = eval(row[0])
             if('id' in u.keys()):
-                retweet_id.append(u['id'])
+                retweet_id.append(str(u['id']))
                 eng.append('retweet')
             else:
                 retweet_id.append(None)
@@ -129,7 +133,7 @@ def hashSeq(control, treated, minHashtags = 5):
             names.append("None")
         else:
             u  = eval(row[1])
-            names.append(u['id'])
+            names.append(str(u['id']))
     
     control['twitterAuthorScreenname'] = names
     control['retweet_ordinalId'] = retweet_id
@@ -199,13 +203,25 @@ def hashSeq(control, treated, minHashtags = 5):
     hashs = dict(zip(list(cum.hashtag_seq.unique()), list(range(cum.hashtag_seq.unique().shape[0]))))
     cum['hashtag_seq'] = cum['hashtag_seq'].apply(lambda x: hashs[x]).astype(int)
     #del urls
-
-    userid = dict(zip(list(cum.twitterAuthorScreenname.astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
-    cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x]).astype(int)
     
+    # Drop NaN Values
+    cum.dropna(inplace=True)
+
+    #userid = dict(zip(list(cum.twitterAuthorScreenname.astype(int).astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
+    #userid = dict(zip(list(cum.twitterAuthorScreenname.astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
+    
+    # LabelEncoder Instance
+    le = LabelEncoder()
+
+    #cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x]).astype(int)
+    #cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x])
+    userids = list(cum.twitterAuthorScreenname.astype(str).unique())
+    cum['twitterAuthorScreenname'] = le.fit_transform(cum['twitterAuthorScreenname'].astype(str))
+    
+
     person_c = pd.CategoricalDtype(sorted(cum.twitterAuthorScreenname.unique()), ordered=True)
     thing_c = pd.CategoricalDtype(sorted(cum.hashtag_seq.unique()), ordered=True)
-    
+     
     row = cum.twitterAuthorScreenname.astype(person_c).cat.codes
     col = cum.hashtag_seq.astype(thing_c).cat.codes
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
@@ -221,8 +237,10 @@ def hashSeq(control, treated, minHashtags = 5):
 
     df_adj = pd.DataFrame(similarities.toarray())
     del similarities
-    df_adj.index = userid.keys()
-    df_adj.columns = userid.keys()
+    #df_adj.index = userid.keys()
+    #df_adj.columns = userid.keys()
+    df_adj.index = userids
+    df_adj.columns = userids
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj
     

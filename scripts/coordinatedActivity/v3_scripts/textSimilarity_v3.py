@@ -21,7 +21,7 @@ from nltk.corpus import stopwords
 import nltk
 import re
 import warnings
-warnings.filterwarnings("ignore")
+#warnings.filterwarnings("ignore")
 from sklearn.metrics.pairwise import cosine_similarity, linear_kernel
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from scipy import spatial
@@ -30,7 +30,9 @@ import gzip
 import glob
 from datetime import datetime
 from datetime import timedelta
-import networkx as nx
+import networkx as nx 
+
+import warnings
 
 # MAIN FUNCTION at line 199
 
@@ -330,6 +332,10 @@ def textSim(datasetsPaths, outputDir):
 # to run after the textSim function
 # inputDir: path of the directory containing the similarity files; it corresponds to the outputDir used in the textSim function
 def getSimilarityNetwork(inputDir):
+    
+    # Warnings
+    warnings.warn("Similarity Network")
+    
     files = [f for f in listdir(inputDir)]
     files.sort()
 
@@ -353,21 +359,121 @@ def getSimilarityNetwork(inputDir):
         l = d[fil]
         if i == 0:
             combined = pd.read_csv(os.path.join(inputDir,l[0]))
+            # Dropping NaN Records
+            combined.dropna(inplace=True)
             combined['weight'] = thr
+            combined = combined[['weight','source_user','target_user']]
             i += 1
             for o in l[1:]:
                 temp = pd.read_csv(os.path.join(inputDir,o))
                 temp['weight'] = thr
-                combined = pd.concat([combined, temp])
+                combined = pd.concat([combined, temp],ignore_index=True)
         else:
             for o in l:
                 temp = pd.read_csv(os.path.join(inputDir,o))
                 temp['weight'] = thr
-                combined = pd.concat([combined, temp])
+                combined = pd.concat([combined, temp],ignore_index=True)
+                
+    combined['source_user'] = combined['source_user'].apply(lambda x: str(x).strip())
+    combined['target_user'] = combined['target_user'].apply(lambda x: str(x).strip())
+    
     
     combined.sort_values(by='weight', ascending=False, inplace=True)
-    combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)   
+    combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)
+    
+    warnings.warn("written csv file")
+    combined.to_csv("/scratch1/ashwinba/cache/text_sim_temp.csv")
+
     G = nx.from_pandas_edgelist(combined, source='source_user', target='target_user', edge_attr=['weight'])
+    
+    nx.write_gml(G,"/scratch1/ashwinba/cache/text_similarity.gml.gz")
+    warnings.warn("written gml file")
+    
+    MAPPER_DIR = "/scratch1/ashwinba/consolidated"
+    CONTROL_MAPPER_DIR = "control_consolidated_raw.csv.gz"
+    TREATED_MAPPER_DIR = "treated_consolidated_raw.csv.gz"
+    
+    control = pd.read_csv(os.path.join(MAPPER_DIR,CONTROL_MAPPER_DIR),compression='gzip')
+    treated = pd.read_csv(os.path.join(MAPPER_DIR,TREATED_MAPPER_DIR),compression='gzip')
+    
+    # Dropping NaN Values
+    control.dropna(subset=['user','country'],inplace=True)
+    #treated.dropna(subset=['userid','country'],inplace=True)
+    
+    control['userid'] = control['user'].apply(lambda x: str(int(eval(x)['id'].strip())))
+    
+    mapper1 = control[['country','userid']]
+    mapper2 = treated[['country','userid']]
+    
+    # Deleting dfs
+    del control
+    del treated
+    
+    #mapper1['userid'] = mapper1['userid'].astype(str)
+    #mapper2['userid'] = mapper2['userid'].astype(str)
+    
+    # Calling Function
+    generate_country_wise(mapper1,mapper2,G)
+    
             
     return G
+    
+
+def generate_country_wise(mapper1,mapper2,graph):
+    # Generate Vertices
+    graph = nx.relabel_nodes(graph, lambda x: str(x))
+    graph.remove_edges_from(list(nx.selfloop_edges(graph)))
+    vertices = list(set(graph.nodes))
+    warnings.warn("Total Vertices :"+str(len(vertices)))
+    
+    mapper1['class_label'] = "control"
+    mapper2['class_label'] = "treated"
+    
+    #countries = list(set(list(set(list(mapper1['country'].values) + list(mapper2['country'].values)))))
+
+    merged = pd.concat([mapper1,mapper2])
+    
+    #Delete NaN Values
+    merged.dropna(subset=['userid'],inplace=True)
+    
+    merged['userid'] = merged['userid'].apply(lambda x: str(x))
+    warnings.warn("userid dtype changed")
+    
+    # Deleting Consolidated Files
+    del mapper1
+    del mapper2
+    
+    attributes = {}
+    counter = 0
+    warnings.warn("Starting to work")
+    for v in vertices:
+        counter+=1
+        if(counter%10 == 0):
+            warnings.warn(str(counter) + " work done")
+        temp_dict = {}
+        
+        if((merged['userid'] == v).any()):
+            temp_dict['class_label'] = merged[merged.userid == v].iloc[0]['class_label']
+
+        else:
+            warnings.warn(str(v)+" not found")
+            temp_dict["class_label"] = "treated"
+        
+        temp_dict["userid"] = str(v)
+        country_mapped = merged.loc[merged['userid'] == v,'country']
+        if(len(country_mapped) == 0 or country_mapped.values[0] in ["egypt","uae"]):
+            temp_dict["country"] = "Egypt&UAE"
+        else:
+            temp_dict["country"] = country_mapped.values[0]
+
+        attributes[v] = temp_dict
+            
+  
+    # Save
+    nx.set_node_attributes(graph,attributes)
+    nx.draw(graph, with_labels=True, font_weight='normal')
+    nx.write_gexf(graph,"/scratch1/ashwinba/cache/plt_countrywise_textsim.gexf")
+    #plt.savefig("/scratch1/ashwinba/cache/plt_countrywise_textsim_img.png")
+
+    print("Executed")
         

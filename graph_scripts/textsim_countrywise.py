@@ -7,9 +7,10 @@ import matplotlib.pyplot as plt
 import random
 import warnings
 
+
 def generate_country_wise(mapper1,mapper2,graph):
     # Generate Vertices
-    graph = nx.relabel_nodes(graph, lambda x: str(int(eval(x.strip()))))
+    graph = nx.relabel_nodes(graph, lambda x: str(x.strip()))
     graph.remove_edges_from(list(nx.selfloop_edges(G)))
     vertices = list(set(graph.nodes))
     warnings.warn("Total Vertices :"+str(len(vertices)))
@@ -27,19 +28,17 @@ def generate_country_wise(mapper1,mapper2,graph):
     del mapper1
     del mapper2
     
+    colormaps= []
     attributes = {}
     counter = 0
     warnings.warn("Starting to work")
     for v in vertices:
-        # Temp dict
-        temp_dict = {}
-
-        # Counter for progress
         counter+=1
-
         if(counter%10 == 0):
             warnings.warn(str(counter) + " work done")
             
+        temp_dict = {}
+        
         if((merged['userid'] == v).any()):
             temp_dict['class_label'] = merged[merged.userid == v].iloc[0]['class_label']
 
@@ -56,18 +55,30 @@ def generate_country_wise(mapper1,mapper2,graph):
 
         attributes[v] = temp_dict
             
+  
     # Save
     nx.set_node_attributes(graph,attributes)
     nx.draw(graph, with_labels=True, font_weight='normal')
-    nx.write_gexf(graph,"/scratch1/ashwinba/cache/plt_countrywise_courl_img1.gexf")
-    print("done")
+    nx.write_gexf(graph,"/scratch1/ashwinba/cache/plt_countrywise_textsim.gexf")
 
-RAW_GRAPH_DIR = "/scratch1/ashwinba/graphs/coURL.gml.gz"
+    print("Executed")
+
+    
+RAW_GRAPH_DIR = "/scratch1/ashwinba/cache/text_sim.gml"
+RAW_GRAPH_CSV_DIR = "/scratch1/ashwinba/cache/text_sim_temp.csv"
 MAPPER_DIR = "/scratch1/ashwinba/consolidated"
 CONTROL_MAPPER_DIR = "control_consolidated_raw.csv.gz"
 TREATED_MAPPER_DIR = "treated_consolidated_raw.csv.gz"
 
-G = nx.read_gml(os.path.join(RAW_GRAPH_DIR))
+#G = nx.read_gml(os.path.join(RAW_GRAPH_DIR))
+df = pd.read_csv(RAW_GRAPH_CSV_DIR,low_memory=False)
+df = df[['source_user','target_user','weight']]
+
+G = nx.from_pandas_edgelist(df, source='source_user', target='target_user', edge_attr=['weight'])
+nx.write_gml(G,"/scratch1/ashwinba/cache/text_similarity.gml.gz")
+warnings.warn("GML File Written")
+del df
+
 control = pd.read_csv(os.path.join(MAPPER_DIR,CONTROL_MAPPER_DIR),compression='gzip')
 treated = pd.read_csv(os.path.join(MAPPER_DIR,TREATED_MAPPER_DIR),compression='gzip')
 

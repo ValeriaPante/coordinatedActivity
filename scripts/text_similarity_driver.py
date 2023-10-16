@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 
 import pickle
+import warnings
 
 from coordinatedActivity.v3_scripts.textSimilarity_v3 import *
 
@@ -29,5 +30,7 @@ dataset_dirs = []
 '''
 #textSim(dataset_dirs,OUTPUT_DIR)
 g = getSimilarityNetwork(OUTPUT_DIR)
+warnings.warn("Similarity Network Recieved")
 # Saving Graph in GML File
 nx.write_gml(g,os.path.join(OUTPUT_GRAPH_DIR,"text_sim.gml.gz"))
+warnings.warn("Sim Network Written")

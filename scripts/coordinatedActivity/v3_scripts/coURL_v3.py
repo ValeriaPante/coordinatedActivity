@@ -6,6 +6,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
 
+import warnings
 
 # Data assumptions:
 #   - 2 Pandas dataframes
@@ -23,7 +24,11 @@ def coRetweet(control, treated):
     control['userid'] = control['user'].apply(lambda x: eval(x)['id'])
     control['urls'] = control['entities'].apply(lambda x: eval(x)['urls'])
     control = control[['userid', 'urls']].explode('urls')
-    #control.dropna(inplace=True)
+    control.dropna(inplace=True)
+    
+    # Dummy Print
+    warnings.warn(str(control['urls'].values))
+    
     control['urls'] = control['urls'].apply(lambda x: str(dict(x)['expanded_url']).replace(',', '.') if x else np.NaN)
     
     treated['urls'] = treated['urls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
