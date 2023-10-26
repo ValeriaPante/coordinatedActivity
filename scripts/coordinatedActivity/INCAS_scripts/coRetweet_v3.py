@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 import numpy as np
 
@@ -33,9 +31,14 @@ import warnings
 
 
 def coRetweet(cum):
+    # Setting up LabelEncoder instance
+    le = LabelEncoder()
 
     # Sorting cum based on timePublished
     cum.sort_values(by=['timePublished'], inplace=True)
+
+    # Userid
+    cum['userid'] = le.fit_transform(cum['author'].values)
 
     # FFill for NaN values
     cum['retweet_id'] = np.nan
@@ -53,54 +56,23 @@ def coRetweet(cum):
 
     cum = cum.ffill()
 
-    warnings.warn("Worked")
-
-
-def coRetweet(control, treated):
-
-    # Label Encoder
-    le = LabelEncoder()
-
-    control.dropna(inplace=True)
-    treated.dropna(inplace=True)
-
-    control = control.ffill()
-    treated = treated.ffill()
-
-    # Old Code
-    # control['retweet_id'] = control['retweeted_status'].apply(lambda x: int(dict(x)['id']))
-    # control['userid'] = control['user'].apply(lambda x: int(dict(x)['id']))
-
-    # New Code
-    control['retweet_id'] = control['retweeted_status'].apply(
-        lambda x: int(eval(x)['id']))
-    control['userid'] = control['user'].apply(lambda x: int(eval(x)['id']))
-
-    # control = control[['id', 'userid', 'retweet_id', 'tweet_timestamp', 'retweet_timestamp']]
-    # control.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp']
-
-    control = control[['id', 'userid', 'retweet_id']]
-    control.columns = ['tweetid', 'userid', 'retweet_tweetid']
-
-    treated['retweet_tweetid'] = treated['retweet_tweetid'].astype(int)
-
-    cum = pd.concat([treated, control])
     filt = cum[['userid', 'tweetid']].groupby(
         ['userid'], as_index=False).count()
+
     filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
     # print(filt)
     cum = cum.loc[cum['userid'].isin(filt)]
-    cum = cum[['userid', 'retweet_tweetid']].drop_duplicates()
+    cum = cum[['userid', 'retweet_id']].drop_duplicates()
 
-    temp = cum.groupby('retweet_tweetid', as_index=False).count()
-    cum = cum.loc[cum['retweet_tweetid'].isin(
-        temp.loc[temp['userid'] > 1]['retweet_tweetid'].to_list())]
+    temp = cum.groupby('retweet_id', as_index=False).count()
+    cum = cum.loc[cum['retweet_id'].isin(
+        temp.loc[temp['userid'] > 1]['retweet_id'].to_list())]
 
     cum['value'] = 1
 
     ids = dict(zip(list(cum.retweet_tweetid.unique()), list(
         range(cum.retweet_tweetid.unique().shape[0]))))
-    cum['retweet_tweetid'] = cum['retweet_tweetid'].apply(
+    cum['retweet_id'] = cum['retweet_id'].apply(
         lambda x: ids[x]).astype(int)
     # del urls
     print("CUM", len(set(cum['userid'])))
