@@ -1,12 +1,19 @@
+import os
+
 import pandas as pd
 import numpy as np
+
 import networkx as nx
+
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfTransformer
+
 from scipy.sparse import csr_matrix
 from pandas.api.types import CategoricalDtype
 
 from sklearn.preprocessing import LabelEncoder
+
+import warnings
 
 # Data assumptions:
 #   - 2 Pandas dataframes
@@ -26,9 +33,27 @@ from sklearn.preprocessing import LabelEncoder
 
 
 def coRetweet(cum):
+
+    # Sorting cum based on timePublished
+    cum.sort_values(by=['timePublished'], inplace=True)
+
     # FFill for NaN values
+    cum['retweet_id'] = np.nan
+
+    contextsCounts = cum['contentText'].value_counts()
+    repeatedContexts = contextsCounts.where(contextsCounts > 1).index
+
+    for context in repeatedContexts:
+        orginal_id = cum[cum['contentText'] == context]['id'].values[0]
+        cum.loc[(cum['contentText'] == context) & (
+            cum['id'] != orginal_id), "retweet_id"] = orginal_id
+
+    # Dropping Records which do not have any retweets
+    cum.dropna(inplace=True)
+
     cum = cum.ffill()
-    pass
+
+    warnings.warn("Worked")
 
 
 def coRetweet(control, treated):
