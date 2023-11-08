@@ -7,6 +7,7 @@ import warnings
 def GenerateDatasets(fileDirs):
     # Root Directory
     file_root_dir = "/scratch1/ashwinba/consolidated/INCAS/"
+    root_dir = "/scratch1/ashwinba/INCAS"
 
     finalDataFrame = pd.DataFrame()
 
@@ -14,7 +15,7 @@ def GenerateDatasets(fileDirs):
 
     for fileDir in fileDirs:
         source = list(filter(lambda x: x in fileDir, sources))[0]
-        df = pd.read_json(path_or_buf=fileDir, lines=True)
+        df = pd.read_json(path_or_buf=os.path.join(root_dir,fileDir), lines=True)
         df['source_data'] = source
         finalDataFrame = pd.concat([df, finalDataFrame], ignore_index=True)
         warnings.warn("Completed for {SOURCE}".format(SOURCE=source))

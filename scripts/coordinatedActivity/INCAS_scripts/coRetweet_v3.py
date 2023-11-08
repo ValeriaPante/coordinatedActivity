@@ -31,35 +31,41 @@ import warnings
 
 
 def coRetweet(cum):
+
+    warnings.warn("came in")
+
     # Setting up LabelEncoder instance
     le = LabelEncoder()
 
     # Sorting cum based on timePublished
     cum.sort_values(by=['timePublished'], inplace=True)
+    
+    warnings.warn("No of Records "+str(len(cum)))
 
     # Userid
-    cum['userid'] = le.fit_transform(cum['author'].values)
+    cum['userid'] = le.fit_transform(cum['author'])
+    warnings.warn("after label encoding")
 
     # FFill for NaN values
     cum['retweet_id'] = np.nan
 
     contextsCounts = cum['contentText'].value_counts()
     repeatedContexts = contextsCounts.where(contextsCounts > 1).index
+    
+    # Display no of repeatedCounts
+    warnings.warn("repeatedCounts: "+str(len(repeatedContexts)))
 
     for context in repeatedContexts:
         orginal_id = cum[cum['contentText'] == context]['id'].values[0]
-        cum.loc[(cum['contentText'] == context) & (
-            cum['id'] != orginal_id), "retweet_id"] = orginal_id
+        cum.loc[(cum['contentText'] == context), "retweet_id"] = orginal_id
 
-    # Dropping Records which do not have any retweets
-    cum.dropna(inplace=True)
+    warnings.warn("grouped")
 
-    cum = cum.ffill()
 
     filt = cum[['userid', 'tweetid']].groupby(
         ['userid'], as_index=False).count()
 
-    filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
+    filt = list(filt.loc[filt['tweetid'] >= 10]['userid'])
     # print(filt)
     cum = cum.loc[cum['userid'].isin(filt)]
     cum = cum[['userid', 'retweet_id']].drop_duplicates()
@@ -75,14 +81,10 @@ def coRetweet(cum):
     cum['retweet_id'] = cum['retweet_id'].apply(
         lambda x: ids[x]).astype(int)
     # del urls
-    print("CUM", len(set(cum['userid'])))
-    # userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
-    # cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
-    cum['userid'] = le.fit_transform(cum['userid'].astype(str))
+    warnings.warn("CUM "+ str(len(set(cum['userid']))))
 
     person_c = CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
-    thing_c = CategoricalDtype(
-        sorted(cum.retweet_tweetid.unique()), ordered=True)
+    thing_c = CategoricalDtype(sorted(cum.retweet_tweetid.unique()), ordered=True)
 
     row = cum.userid.astype(person_c).cat.codes
     col = cum.retweet_tweetid.astype(thing_c).cat.codes
