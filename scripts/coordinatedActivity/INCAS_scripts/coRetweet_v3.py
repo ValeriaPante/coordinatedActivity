@@ -52,17 +52,26 @@ def coRetweet(cum):
     warnings.warn("after label encoding")
 
     # FFill for NaN values
-    cum['retweet_id'] = np.nan
+    #cum['retweet_id'] = np.nan
 
     contextsCounts = cum['contentText'].value_counts()
-    repeatedContexts = contextsCounts.where(contextsCounts > 1).index
+    repeatedContexts = contextsCounts.where(contextsCounts > 1)
+    repeatedContexts.dropna(inplace=True)
+
+    repeatedContexts = list(repeatedContexts.index)
+    mask = cum['contentText'].isin(repeatedContexts)
+    cum_mask = cum[mask][['id','contextText']]
+    cum_mask.rename({'id':'retweet_id'},inplace=True)
+
+    cum = pd.merge(cum,cum_mask,on='contentText')
+    cum.loc[cum["id"] == cum['retweet_id'], "retweet_id"] = np.nan    
     
     # Display no of repeatedCounts
     warnings.warn("repeatedCounts: "+str(len(repeatedContexts)))
 
-    for context in repeatedContexts:
-        orginal_id = cum[cum['contentText'] == context]['id'].values[0]
-        cum.loc[(cum['contentText'] == context) & (cum['id']!=orginal_id), "retweet_id"] = orginal_id
+    # for context in repeatedContexts:
+    #     orginal_id = cum[cum['contentText'] == context]['id'].values[0]
+    #     cum.loc[(cum['contentText'] == context) & (cum['id']!=orginal_id), "retweet_id"] = orginal_id
 
     warnings.warn("grouped")
 

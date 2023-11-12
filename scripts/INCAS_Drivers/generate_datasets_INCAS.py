@@ -32,6 +32,31 @@ def GenerateDatasets(fileDirs):
 
         warnings.warn("Completed for {SOURCE}".format(SOURCE=source))
 
+    
+    author_mappings = dict(zip(list(df.author.unique()), list(range(df.author.unique().shape[0])))) 
+
+    # Userid
+    df['userid'] = df['author'].apply(lambda x: author_mappings[x]).astype(int)
+    warnings.warn("after label encoding")
+
+    # FFill for NaN values
+    #df['retweet_id'] = np.nan
+
+    contextsCounts = df['contentText'].value_counts()
+    repeatedContexts = contextsCounts.where(contextsCounts > 1)
+    repeatedContexts.dropna(inplace=True)
+
+    repeatedContexts = list(repeatedContexts.index)
+    mask = df['contentText'].isin(repeatedContexts)
+    df_mask = df[mask][['id','contextText']]
+    df_mask.rename({'id':'retweet_id'},inplace=True)
+
+    df = pd.merge(df,df_mask,on='contentText')
+    df.loc[df["id"] == df['retweet_id'], "retweet_id"] = np.nan    
+    
+    # Display no of repeatedCounts
+    warnings.warn("repeatedCounts: "+str(len(repeatedContexts)))
+
     warnings.warn("File Consolidated")
     finalDataFrame.to_csv(os.path.join(
         file_root_dir, "consolidated_INCAS.csv"),index=False)
