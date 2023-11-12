@@ -33,6 +33,9 @@ import warnings
 def coRetweet(cum):
 
     warnings.warn("came in")
+    
+    # Dropping NaN Records
+    cum.dropna(subset=['author'],inplace=True)
 
     # Setting up LabelEncoder instance
     le = LabelEncoder()
@@ -41,9 +44,11 @@ def coRetweet(cum):
     cum.sort_values(by=['timePublished'], inplace=True)
     
     warnings.warn("No of Records "+str(len(cum)))
+    
+    author_mappings = dict(zip(list(cum.author.unique()), list(range(cum.author.unique().shape[0])))) 
 
     # Userid
-    cum['userid'] = le.fit_transform(cum['author'])
+    cum['userid'] = cum['author'].apply(lambda x: author_mappings[x]).astype(int)
     warnings.warn("after label encoding")
 
     # FFill for NaN values
@@ -57,7 +62,7 @@ def coRetweet(cum):
 
     for context in repeatedContexts:
         orginal_id = cum[cum['contentText'] == context]['id'].values[0]
-        cum.loc[(cum['contentText'] == context), "retweet_id"] = orginal_id
+        cum.loc[(cum['contentText'] == context) & (cum['id']!=orginal_id), "retweet_id"] = orginal_id
 
     warnings.warn("grouped")
 

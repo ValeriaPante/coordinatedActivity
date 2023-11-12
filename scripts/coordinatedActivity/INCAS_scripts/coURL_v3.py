@@ -20,7 +20,7 @@ def coURL(cum):
 
     warnings.warn("came in")
 
-    cum['url'] = cum['url'].apply(lambda x: str(dict(x)['expanded_url']).replace(',', '.') if x else np.NaN)
+    cum.dropna(subset=['author'],inplace=True)
     cum['userid'] = le.fit_transform(cum['author'])
 
 
@@ -34,7 +34,6 @@ def coURL(cum):
     cum['url'] = cum['url'].apply(lambda x: url[x]).astype(int)
     del url
     
-
 
     # Changing Datatype to string
     cum['userid'] = cum['userid'].astype(str)
