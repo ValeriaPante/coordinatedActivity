@@ -35,47 +35,16 @@ def coRetweet(cum):
     warnings.warn("came in")
     
     # Dropping NaN Records
-    cum.dropna(subset=['author'],inplace=True)
-
-    # Setting up LabelEncoder instance
-    le = LabelEncoder()
+    print(cum.shape)
+    print(cum.columns)
+    
+    cum = cum.rename(index=str,columns={'id':'tweetid'})
 
     # Sorting cum based on timePublished
     cum.sort_values(by=['timePublished'], inplace=True)
     
     warnings.warn("No of Records "+str(len(cum)))
     
-    author_mappings = dict(zip(list(cum.author.unique()), list(range(cum.author.unique().shape[0])))) 
-
-    # Userid
-    cum['userid'] = cum['author'].apply(lambda x: author_mappings[x]).astype(int)
-    warnings.warn("after label encoding")
-
-    # FFill for NaN values
-    #cum['retweet_id'] = np.nan
-
-    contextsCounts = cum['contentText'].value_counts()
-    repeatedContexts = contextsCounts.where(contextsCounts > 1)
-    repeatedContexts.dropna(inplace=True)
-
-    repeatedContexts = list(repeatedContexts.index)
-    mask = cum['contentText'].isin(repeatedContexts)
-    cum_mask = cum[mask][['id','contextText']]
-    cum_mask.rename({'id':'retweet_id'},inplace=True)
-
-    cum = pd.merge(cum,cum_mask,on='contentText')
-    cum.loc[cum["id"] == cum['retweet_id'], "retweet_id"] = np.nan    
-    
-    # Display no of repeatedCounts
-    warnings.warn("repeatedCounts: "+str(len(repeatedContexts)))
-
-    # for context in repeatedContexts:
-    #     orginal_id = cum[cum['contentText'] == context]['id'].values[0]
-    #     cum.loc[(cum['contentText'] == context) & (cum['id']!=orginal_id), "retweet_id"] = orginal_id
-
-    warnings.warn("grouped")
-
-
     filt = cum[['userid', 'tweetid']].groupby(
         ['userid'], as_index=False).count()
 
@@ -90,18 +59,18 @@ def coRetweet(cum):
 
     cum['value'] = 1
 
-    ids = dict(zip(list(cum.retweet_tweetid.unique()), list(
-        range(cum.retweet_tweetid.unique().shape[0]))))
+    ids = dict(zip(list(cum.retweet_id.unique()), list(
+        range(cum.retweet_id.unique().shape[0]))))
     cum['retweet_id'] = cum['retweet_id'].apply(
         lambda x: ids[x]).astype(int)
     # del urls
     warnings.warn("CUM "+ str(len(set(cum['userid']))))
 
     person_c = CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
-    thing_c = CategoricalDtype(sorted(cum.retweet_tweetid.unique()), ordered=True)
+    thing_c = CategoricalDtype(sorted(cum.retweet_id.unique()), ordered=True)
 
     row = cum.userid.astype(person_c).cat.codes
-    col = cum.retweet_tweetid.astype(thing_c).cat.codes
+    col = cum.retweet_id.astype(thing_c).cat.codes
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(
         person_c.categories.size, thing_c.categories.size))
     del row, col, person_c, thing_c
@@ -112,11 +81,11 @@ def coRetweet(cum):
 
     df_adj = pd.DataFrame(similarities.toarray())
     del similarities
-    uniques = set(list(le.inverse_transform(cum['userid'].values)))
-    # df_adj.index = userid.keys()
-    # df_adj.columns = userid.keys()
-    df_adj.index = uniques
-    df_adj.columns = uniques
+    #uniques = set(list(le.inverse_transform(cum['userid'].values)))
+    df_adj.index = ids.keys()
+    df_adj.columns = ids.keys()
+    #df_adj.index = uniques
+    #df_adj.columns = uniques
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj
 

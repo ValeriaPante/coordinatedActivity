@@ -28,38 +28,48 @@ def GenerateDatasets(fileDirs):
         
         #finalDataFrame = finalDataFrame._append(df,ignore_index=True)
         finalDataFrame = pd.concat([finalDataFrame,df], ignore_index=True)
-        print(finalDataFrame.isna().sum())
+        print(finalDataFrame.shape)
 
         warnings.warn("Completed for {SOURCE}".format(SOURCE=source))
+        
+    
 
     
-    author_mappings = dict(zip(list(df.author.unique()), list(range(df.author.unique().shape[0])))) 
+    author_mappings = dict(zip(list(finalDataFrame.author.unique()), list(range(finalDataFrame.author.unique().shape[0])))) 
 
     # Userid
-    df['userid'] = df['author'].apply(lambda x: author_mappings[x]).astype(int)
+    finalDataFrame['userid'] = finalDataFrame['author'].apply(lambda x: author_mappings[x]).astype(int)
     warnings.warn("after label encoding")
+    
+    # Sorting cum based on timePublished
+    finalDataFrame.sort_values(by=['timePublished'], inplace=True)
 
     # FFill for NaN values
     #df['retweet_id'] = np.nan
 
-    contextsCounts = df['contentText'].value_counts()
+    contextsCounts = finalDataFrame['contentText'].value_counts()
     repeatedContexts = contextsCounts.where(contextsCounts > 1)
     repeatedContexts.dropna(inplace=True)
 
-    repeatedContexts = list(repeatedContexts.index)
-    mask = df['contentText'].isin(repeatedContexts)
-    df_mask = df[mask][['id','contextText']]
-    df_mask.rename({'id':'retweet_id'},inplace=True)
 
-    df = pd.merge(df,df_mask,on='contentText')
-    df.loc[df["id"] == df['retweet_id'], "retweet_id"] = np.nan    
+    repeatedContexts = list(repeatedContexts.index)
+    mask = finalDataFrame['contentText'].isin(repeatedContexts)
+    df_mask = finalDataFrame[mask][['id','contentText']]
+    df_mask.rename(columns={'id':'retweet_id'},inplace=True)
+    df_mask.drop_duplicates(subset=['contentText'],inplace=True,keep='first')
+
+    df = pd.merge(finalDataFrame,df_mask,on='contentText',how='outer')
+
+    df.loc[(df['id'] == df['retweet_id']), "retweet_id"] = np.nan    
+    
+    print(df.shape)
     
     # Display no of repeatedCounts
     warnings.warn("repeatedCounts: "+str(len(repeatedContexts)))
 
     warnings.warn("File Consolidated")
-    finalDataFrame.to_csv(os.path.join(
-        file_root_dir, "consolidated_INCAS.csv"),index=False)
+    df.to_csv(os.path.join(
+        file_root_dir, "consolidated_INCAS.csv.gz"),index=False)
     warnings.warn("Consolidated File Saved")
 
 
@@ -68,9 +78,3 @@ files_dirs = os.listdir(
     root_dir)
 
 GenerateDatasets(files_dirs)
-
-file = pd.read_csv(os.path.join("/scratch1/ashwinba/consolidated/INCAS/","consolidated_INCAS.csv"))
-file.dropna(subset=['title'],inplace=True)
-print(file.shape)
-print(file.head(20))
-print(file.isna().sum())
