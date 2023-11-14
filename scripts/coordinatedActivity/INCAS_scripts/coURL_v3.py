@@ -12,7 +12,15 @@ from pandas.api.types import CategoricalDtype
 from sklearn.preprocessing import LabelEncoder
 
 import warnings
+# Data Assumption - INCAS
+# - 1 Pandas DataFramee
 
+# Index(['annotations', 'dataTags', 'embeddedUrls', 'extraAttributes',
+#        'imageUrls', 'segments', 'author', 'contentText', 'geolocation', 'id',
+#        'language', 'mediaType', 'mediaTypeAttributes', 'mentionedUsers',
+#        'name', 'timePublished', 'title', 'url', 'translatedContentText',
+#        'translatedTitle'],
+#       dtype='object')
 
 le = LabelEncoder()
 
