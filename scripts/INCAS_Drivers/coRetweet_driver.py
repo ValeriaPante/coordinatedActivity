@@ -17,14 +17,14 @@ from coordinatedActivity.INCAS_scripts.coRetweet_v3 import *
 dataset_dir = "/scratch1/ashwinba/consolidated/INCAS"
 graph_dir = "/scratch1/ashwinba/cache/INCAS"
 
-with gzip.open(os.path.join(dataset_dir,"consolidated_INCAS.csv.gz")) as f:
+with gzip.open(os.path.join(dataset_dir,"consolidated_INCAS_0908.csv.gz")) as f:
     cum_df = pd.read_csv(f)
 
 warnings.warn("opened dataframe")
 G = coRetweet(cum_df)
 
 # Saving Graph in GML File
-nx.write_gml(G,os.path.join(graph_dir,"coRetweet_INCAS.gml.gz"))
+nx.write_gexf(G,os.path.join(graph_dir,"coRetweet_INCAS_0908.gexf"))
 warnings.warn("file written")
 
 

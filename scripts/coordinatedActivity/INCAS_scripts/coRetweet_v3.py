@@ -38,15 +38,22 @@ def coRetweet(cum):
     print(cum.shape)
     print(cum.columns)
     
+    cum.dropna(subset=['retweet_id'],inplace=True)
+    
     cum = cum.rename(index=str,columns={'id':'tweetid'})
 
     filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
-    filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
+    filt = list(filt.loc[filt['tweetid'] >= 2]['userid'])
+    print(len(filt))
     cum = cum.loc[cum['userid'].isin(filt)]
     cum = cum[['userid', 'retweet_id']].drop_duplicates()
 
     temp = cum.groupby('retweet_id', as_index=False).count()
-    cum = cum.loc[cum['retweet_id'].isin(temp.loc[temp['userid']>1]['retweet_id'].to_list())]
+    print("Grouped")
+    print(len(cum['retweet_id'].unique()))
+    print(cum.groupby('retweet_id')['retweet_id'].count())
+    print(cum.groupby(cum['retweet_id']).filter(lambda x: len(x) > 1).value_counts())
+    cum = cum.loc[cum['retweet_id'].isin(temp.loc[temp['userid']>=1]['retweet_id'].to_list())]
 
     cum['value'] = 1
     
