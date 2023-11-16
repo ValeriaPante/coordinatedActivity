@@ -24,7 +24,7 @@ warnings.warn("opened dataframe")
 G = coURL(cum_df)
 
 # Saving Graph in GML File
-nx.write_gml(G,os.path.join(graph_dir,"coURL_INCAS.gml.gz"))
+nx.write_gexf(G,os.path.join(graph_dir,"coURL_INCAS.gexf"))
 warnings.warn("file written")
 
 
