@@ -40,7 +40,7 @@ def coRetweet(cum):
     
     cum.dropna(subset=['retweet_id'],inplace=True)
     
-    cum = cum.rename(index=str,columns={'id':'tweetid'})
+    #cum = cum.rename(index=str,columns={'id':'tweetid'})
 
     filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
     filt = list(filt.loc[filt['tweetid'] >= 2]['userid'])

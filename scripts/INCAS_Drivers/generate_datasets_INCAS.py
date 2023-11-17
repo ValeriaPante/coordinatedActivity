@@ -15,6 +15,11 @@ def find_author_name(title):
         return name[0][1:]
     return np.nan
 
+def find_retweet(user_dict):
+    if(user_dict['engagementType'] == 'retweet'):
+        return user_dict['engagementParentId']
+    return np.nan
+
 def GenerateDatasets(fileDirs):
     # Root Directory
     file_root_dir = "/scratch1/ashwinba/consolidated/INCAS/"
@@ -36,8 +41,11 @@ def GenerateDatasets(fileDirs):
             #print(df.head(2)['name'])
             # False Id
             if(source == 'twitter'):
-                df['author'] = df['title'].apply(lambda x:find_author_name(x))
-                
+                df['author'] = df['mediaTypeAttributes'].apply(lambda x:eval(x)['twitterAuthorScreenname'])
+                df['tweetid'] = df['mediaTypeAttributes'].apply(lambda x:eval(x)['tweetId'])
+                df['retweet_id'] = df['mediaTypeAttributes'].apply(lambda x:find_retweet(eval(x)))
+
+            # Dropping empty user ids          
             df.dropna(subset=['author'],inplace=True)
 
             # Removing unecessary columns
