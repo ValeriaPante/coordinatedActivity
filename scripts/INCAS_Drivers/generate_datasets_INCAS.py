@@ -41,9 +41,9 @@ def GenerateDatasets(fileDirs):
             #print(df.head(2)['name'])
             # False Id
             if(source == 'twitter'):
-                df['author'] = df['mediaTypeAttributes'].apply(lambda x:eval(x)['twitterAuthorScreenname'])
-                df['tweetid'] = df['mediaTypeAttributes'].apply(lambda x:eval(x)['tweetId'])
-                df['retweet_id'] = df['mediaTypeAttributes'].apply(lambda x:find_retweet(eval(x)))
+                df['author'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterAuthorScreenname'])
+                df['tweetid'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['tweetId'])
+                df['retweet_id'] = df['mediaTypeAttributes'].apply(lambda x:find_retweet(dict(x)))
 
             # Dropping empty user ids          
             df.dropna(subset=['author'],inplace=True)
