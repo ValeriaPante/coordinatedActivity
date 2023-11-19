@@ -28,11 +28,11 @@ def coURL(cum):
 
     warnings.warn("came in")
     
-    #print(cum.columns)
+    print(cum.columns)
 
     temp = cum.groupby('url', as_index=False).count()
-    print(temp.loc[temp['userid']>1]['url'].to_list())
-    cum = cum.loc[cum['url'].isin(temp.loc[temp['userid']>1]['url'].to_list())]
+    #print(temp.loc[temp['userid']>=1]['url'].to_list())
+    cum = cum.loc[cum['url'].isin(temp.loc[temp['userid']>=1]['url'].to_list())]
 
     warnings.warn("grouped")
 

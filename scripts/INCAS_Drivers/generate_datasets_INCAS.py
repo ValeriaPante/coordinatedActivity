@@ -4,10 +4,23 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder
 import re
 
+#Demo update
+
 import warnings
 
 le = LabelEncoder()
 
+
+def find_author(user_dict):
+    if('twitterAuthorScreenname' in list(user_dict.keys())):
+        return user_dict['twitterAuthorScreenname']
+    return np.nan
+
+def find_tweetId(user_dict):
+    if('tweetId' in list(user_dict.keys())):
+        return user_dict['tweetId']
+    print(user_dict)
+    return np.nan
 
 def find_author_name(title):
     name = re.findall(r"\w*[!@#$%^&*]+\w*",title)
@@ -38,12 +51,20 @@ def GenerateDatasets(fileDirs):
             df = pd.read_json(path_or_buf=os.path.join(root_dir,fileDir), lines=True)
             #print(df.columns)
             #print(df.isnull().sum())
-            #print(df.head(2)['name'])
+            #print(df.head(2)['mediaTypeAttributes'].values)
             # False Id
             if(source == 'twitter'):
-                df['author'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterAuthorScreenname'])
-                df['tweetid'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['tweetId'])
-                df['retweet_id'] = df['mediaTypeAttributes'].apply(lambda x:find_retweet(dict(x)))
+                df['author'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterData']['twitterAuthorScreenname'])
+                df['tweetid'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterData']['tweetId'])
+                df['retweet_id'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterData']['engagementParentId'])
+                df['engagementType'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterData']['engagementType'])
+                
+            
+            lists = df['mediaTypeAttributes'].apply(lambda x:list(dict(x)['twitterData'].keys()))
+            lists_sum = sum(lists,[])
+            print(set(lists_sum))
+            
+            print(df['engagementType'].value_counts())
 
             # Dropping empty user ids          
             df.dropna(subset=['author'],inplace=True)
@@ -69,33 +90,12 @@ def GenerateDatasets(fileDirs):
     # Sorting cum based on timePublished
     finalDataFrame.sort_values(by=['timePublished'], inplace=True)
 
-    # FFill for NaN values
-    #df['retweet_id'] = np.nan
+    print(finalDataFrame.columns)
 
-    contextsCounts = finalDataFrame['contentText'].value_counts()
-    repeatedContexts = contextsCounts.where(contextsCounts > 1)
-    repeatedContexts.dropna(inplace=True)
-
-
-    repeatedContexts = list(repeatedContexts.index)
-    mask = finalDataFrame['contentText'].isin(repeatedContexts)
-    df_mask = finalDataFrame[mask][['id','contentText']]
-    df_mask.rename(columns={'id':'retweet_id'},inplace=True)
-    df_mask.drop_duplicates(subset=['contentText'],inplace=True,keep='first')
-
-    df = pd.merge(finalDataFrame,df_mask,on='contentText',how='outer')
-
-    df.loc[(df['id'] == df['retweet_id']), "retweet_id"] = np.nan 
-    
-    print(df.isna().sum())
-    
     #print(df['geolocation'].unique)
-    
-    # Display no of repeatedCounts
-    warnings.warn("repeatedCounts: "+str(len(repeatedContexts)))
 
     warnings.warn("File Consolidated")
-    df.to_csv(os.path.join(
+    finalDataFrame.to_csv(os.path.join(
         file_root_dir, "consolidated_INCAS_0908.csv.gz"),index=False)
     warnings.warn("Consolidated File Saved")
 

@@ -24,7 +24,7 @@ def plot_distribution_curve(values,method):
     plt.savefig(os.path.join(INCAS_DIR,"{METHOD}.png".format(METHOD=method)))
     plt.show()
 
-graph_dir = "../../../gephi/coRetweet_INCAS.gexf"
+graph_dir = "/scratch1/ashwinba/cache/INCAS/coRetweet_INCAS_0908.gexf"
 compute_eigen(graph_dir,"coRetweet")
 
 
