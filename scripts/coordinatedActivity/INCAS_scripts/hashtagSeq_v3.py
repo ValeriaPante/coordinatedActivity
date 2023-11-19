@@ -109,12 +109,12 @@ def hashSeq(cum,minHashtags = 5):
 
     cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
     cum.drop('contentText', axis=1, inplace=True)
-    cum = cum[['twitterAuthorScreenname', 'hashtag_seq']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= i]
+    cum = cum[['author', 'hashtag_seq']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= i]
     
     cum.drop_duplicates(inplace=True)
     
     temp = cum.groupby('hashtag_seq', as_index=False).count()
-    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['twitterAuthorScreenname']>1]['hashtag_seq'].to_list())]
+    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['author']>1]['hashtag_seq'].to_list())]
 
     cum['value'] = 1
     
@@ -122,13 +122,13 @@ def hashSeq(cum,minHashtags = 5):
     cum['hashtag_seq'] = cum['hashtag_seq'].apply(lambda x: hashs[x]).astype(int)
     del hashs
 
-    userid = dict(zip(list(cum.twitterAuthorScreenname.astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
-    cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x]).astype(int)
+    userid = dict(zip(list(cum.author.astype(str).unique()), list(range(cum.author.unique().shape[0]))))
+    cum['author'] = cum['author'].astype(str).apply(lambda x: userid[x]).astype(int)
     
-    person_c = pd.CategoricalDtype(sorted(cum.twitterAuthorScreenname.unique()), ordered=True)
+    person_c = pd.CategoricalDtype(sorted(cum.author.unique()), ordered=True)
     thing_c = pd.CategoricalDtype(sorted(cum.hashtag_seq.unique()), ordered=True)
     
-    row = cum.twitterAuthorScreenname.astype(person_c).cat.codes
+    row = cum.author.astype(person_c).cat.codes
     col = cum.hashtag_seq.astype(thing_c).cat.codes
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
     del row, col, person_c, thing_c
