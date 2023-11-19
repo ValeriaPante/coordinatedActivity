@@ -3,9 +3,6 @@ import os
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 import re
-
-#Demo update
-
 import warnings
 
 le = LabelEncoder()
