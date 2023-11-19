@@ -6,9 +6,6 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
 
-# Importing LabelEncoder
-from sklearn.preprocessing import LabelEncoder
-
 # Importing nltk
 from nltk.corpus import stopwords
 import nltk
@@ -18,17 +15,12 @@ import datetime
 import re
 
 # Data assumptions:
-#   - 2 Pandas dataframes
-#     - control: control dataset -> includes only columns ['retweeted_status', 'user', 'in_reply_to_status_id', 'full_text', 'id']
-#     - treated: information Operation dataset -> includes only columns ['retweet_tweetid', 'userid', 'in_reply_to_tweetid', 'quoted_tweet_tweetid', 'tweet_text', 'tweetid']
 # minHashtags: minimum number of hashtags inside an hashtag sequence
-
 # Index(['annotations', 'dataTags', 'embeddedUrls', 'extraAttributes',
-#        'imageUrls', 'segments', 'author', 'contentText', 'geolocation', 'id',
-#        'language', 'mediaType', 'mediaTypeAttributes', 'mentionedUsers',
-#        'name', 'timePublished', 'title', 'url', 'translatedContentText',
-#        'translatedTitle'],
-#       dtype='object')
+#        'imageUrls', 'segments', 'author', 'contentText', 'id', 'language',
+#        'mediaType', 'mediaTypeAttributes', 'name', 'timePublished', 'title',
+#        'url', 'tweetid', 'retweet_id', 'engagementType', 'source_data',
+#        'userid'],
 
 
 #Downloading Stopwords
@@ -109,64 +101,46 @@ def get_tweet_timestamp(tid):
         return None  
 
 
-def hashSeq(cum, minHashtags = 5):
-    
+def hashSeq(cum,minHashtags = 5):
+    cum = cum.loc[cum['engagementType'] != 'retweet']
     cum = preprocess_text(cum)
     cum['contentText'] = cum['contentText'].astype(str).apply(lambda x: msg_clean(x))
 
-    
+
     cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
     cum.drop('contentText', axis=1, inplace=True)
-    cum = cum[['author', 'hashtag_seq']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
+    cum = cum[['twitterAuthorScreenname', 'hashtag_seq']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= i]
     
     cum.drop_duplicates(inplace=True)
     
     temp = cum.groupby('hashtag_seq', as_index=False).count()
-    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['author']>1]['hashtag_seq'].to_list())]
+    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['twitterAuthorScreenname']>1]['hashtag_seq'].to_list())]
 
     cum['value'] = 1
     
     hashs = dict(zip(list(cum.hashtag_seq.unique()), list(range(cum.hashtag_seq.unique().shape[0]))))
     cum['hashtag_seq'] = cum['hashtag_seq'].apply(lambda x: hashs[x]).astype(int)
-    #del urls
-    
-    # Drop NaN Values
-    cum.dropna(inplace=True)
+    del hashs
 
-    #userid = dict(zip(list(cum.author.astype(int).astype(str).unique()), list(range(cum.author.unique().shape[0]))))
-    #userid = dict(zip(list(cum.author.astype(str).unique()), list(range(cum.author.unique().shape[0]))))
+    userid = dict(zip(list(cum.twitterAuthorScreenname.astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
+    cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x]).astype(int)
     
-    # LabelEncoder Instance
-    le = LabelEncoder()
-
-    #cum['author'] = cum['author'].astype(str).apply(lambda x: userid[x]).astype(int)
-    #cum['author'] = cum['author'].astype(str).apply(lambda x: userid[x])
-    userids = list(cum.author.astype(str).unique())
-    cum['author'] = le.fit_transform(cum['author'].astype(str))
-    
-
-    person_c = pd.CategoricalDtype(sorted(cum.author.unique()), ordered=True)
+    person_c = pd.CategoricalDtype(sorted(cum.twitterAuthorScreenname.unique()), ordered=True)
     thing_c = pd.CategoricalDtype(sorted(cum.hashtag_seq.unique()), ordered=True)
-     
-    row = cum.author.astype(person_c).cat.codes
+    
+    row = cum.twitterAuthorScreenname.astype(person_c).cat.codes
     col = cum.hashtag_seq.astype(thing_c).cat.codes
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
     del row, col, person_c, thing_c
-
-    #cum = pd.pivot_table(cum,'value', 'userid', 'urls', aggfunc='max')
-    #cum.fillna(0, inplace = True)
     
     vectorizer = TfidfTransformer()
     tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
     similarities = cosine_similarity(tfidf_matrix, dense_output=False)
 
-
     df_adj = pd.DataFrame(similarities.toarray())
     del similarities
-    #df_adj.index = userid.keys()
-    #df_adj.columns = userid.keys()
-    df_adj.index = userids
-    df_adj.columns = userids
+    df_adj.index = userid.keys()
+    df_adj.columns = userid.keys()
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj
     
