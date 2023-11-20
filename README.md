@@ -14,4 +14,15 @@ This repository holds the implementation of state-of-the-art detection methods f
 - Hashtag Sequence (Pacheco et al., 2021)
 - Text Similarity (Pacheco et al., 2020)
 
+Please cite the following work. 
+
+'''@misc{luceri2023unmasking,
+      title={Unmasking the Web of Deceit: Uncovering Coordinated Activity to Expose Information Operations on Twitter}, 
+      author={Luca Luceri and Valeria Pantè and Keith Burghardt and Emilio Ferrara},
+      year={2023},
+      eprint={2310.09884},
+      archivePrefix={arXiv},
+      primaryClass={cs.SI}
+}'''
+
 [Here](https://arxiv.org/abs/2310.09884) you can find the relative publication.
