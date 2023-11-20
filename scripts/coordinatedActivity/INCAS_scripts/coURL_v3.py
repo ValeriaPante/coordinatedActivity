@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 import networkx as nx
 
@@ -7,9 +6,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfTransformer
 
 from scipy.sparse import csr_matrix
-from pandas.api.types import CategoricalDtype
-
-from sklearn.preprocessing import LabelEncoder
 
 import warnings
 # Data Assumption - INCAS
@@ -21,8 +17,6 @@ import warnings
 #        'name', 'timePublished', 'title', 'url', 'translatedContentText',
 #        'translatedTitle'],
 #       dtype='object')
-
-le = LabelEncoder()
 
 def coURL(cum):
 
