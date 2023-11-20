@@ -255,6 +255,8 @@ def textSim(datasetsPaths, outputDir):
     finalDate = pos_en_df_all['tweet_time'].max().date()
     
     i = 1
+
+    combined_tweets_df = None
     
     while date <= finalDate:
         
