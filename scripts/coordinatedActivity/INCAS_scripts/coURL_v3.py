@@ -28,7 +28,19 @@ def coURL(cum):
 
     warnings.warn("came in")
     
-    print(cum.columns)
+    #print(cum.columns)
+    cum['urls'] = cum['embeddedUrls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
+    cum = cum.loc[cum['urls'] != ''].explode('urls')
+    
+    cum.drop_duplicates(inplace=True)
+
+    temp = cum.groupby('urls', as_index=False).count()
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
+
+    cum['value'] = 1
+    urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
+    cum['urls'] = cum['urls'].apply(lambda x: urls[x]).astype(int)
+    del urls
 
     temp = cum.groupby('url', as_index=False).count()
     #print(temp.loc[temp['userid']>=1]['url'].to_list())
