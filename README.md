@@ -13,3 +13,5 @@ This repository holds the implementation of state-of-the-art detection methods f
 - Co-URL (Gabriel  et al., 2023)
 - Hashtag Sequence (Pacheco et al., 2021)
 - Text Similarity (Pacheco et al., 2020)
+
+[Here](https://arxiv.org/abs/2310.09884) you can find the relative publication.
