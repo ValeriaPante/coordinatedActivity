@@ -32,7 +32,7 @@ from datetime import datetime
 from datetime import timedelta
 import networkx as nx 
 
-import warnings
+import warning
 
 # MAIN FUNCTION at line 199
 
@@ -44,54 +44,6 @@ def get_tweet_timestamp(tid):
         return utcdttime
     except:
         return None  
-
-def get_negative_data(neg_df):
-    neg_df = pd.concat([neg_df, pd.DataFrame(list(neg_df['user']))['id']], axis=1)
-    neg_df.drop('user', axis=1, inplace=True)
-    neg_df.columns = ['tweetid','tweet_text','tweet_language','tweet_time','userid']
-
-    return neg_df
-
-def process_data(tweet_df):
-    tweet_df['quoted_tweet_tweetid'] = tweet_df['quoted_tweet_tweetid'].astype('Int64')
-    tweet_df['retweet_tweetid'] = tweet_df['retweet_tweetid'].astype('Int64')
-    
-    # Tweet type classification
-    tweet_type = []
-    for i in range(tweet_df.shape[0]):
-        if pd.notnull(tweet_df['quoted_tweet_tweetid'].iloc[i]):
-            if pd.notnull(tweet_df['retweet_tweetid'].iloc[i]):
-                if pd.notnull(tweet_df['in_reply_to_tweetid'].iloc[i]):
-                    continue
-                else:
-                    tweet_type.append('retweet')
-            else:
-                if pd.notnull(tweet_df['in_reply_to_tweetid'].iloc[i]):
-                    tweet_type.append('reply')
-                else:
-                    tweet_type.append('quoted')
-        else:
-            if pd.notnull(tweet_df['retweet_tweetid'].iloc[i]):
-                if pd.notnull(tweet_df['in_reply_to_tweetid'].iloc[i]):
-                    continue
-                else:
-                    tweet_type.append('retweet')
-            else:
-                if pd.notnull(tweet_df['in_reply_to_tweetid'].iloc[i]):
-                    tweet_type.append('reply')
-                else:
-                    tweet_type.append('original')
-    tweet_df['tweet_type'] = tweet_type
-    tweet_df = tweet_df[tweet_df.tweet_type != 'retweet']
-    
-    return tweet_df
-
-def get_positive_data(pos_df):
-    pos_df = process_data(pos_df)
-    pos_df = pos_df[['tweetid','userid','tweet_time','tweet_language','tweet_text']]
-    pos_df['tweet_time'] = pos_df['tweetid'].apply(lambda x: get_tweet_timestamp(x))
-    
-    return pos_df
 
 #Downloading Stopwords
 nltk.download('stopwords')
@@ -193,3 +145,178 @@ def create_sim_score_df(lims,D,I,search_query1):
                                      'clean_tweet_x':'source_text',
                                      'clean_tweet_y':'target_text'})
     return result
+
+
+# MAIN FUNCTION
+# Data assumptions:
+#   - datasetsPaths: list containing the absolute paths referring to the datasets to analyze (no distiction between control and information operations ones)
+#   - outputDir: directory where to save temporary files
+# To solve computational issues, the function will create multiple output files of users sharing similar texts that will need to then be merged into a network using the getSimilarityNetwork function (see below)
+
+# Index(['annotations', 'dataTags', 'embeddedUrls', 'extraAttributes',
+#        'imageUrls', 'segments', 'author', 'contentText', 'geolocation', 'id',
+#        'language', 'mediaType', 'mediaTypeAttributes', 'mentionedUsers',
+#        'name', 'timePublished', 'title', 'url', 'translatedContentText',
+#        'translatedTitle','engagementType','tweetid'],
+#       dtype='object'
+
+
+def textSim(cum,outputDir):
+
+    # Creating output dir if not exists
+    if not os.path.exists(outputDir):
+        os.mkdir(outputDir)
+
+    # Changing colummns
+    cum.rename(columns={'engagementType':'tweet_type','contentText':'tweet_text'},inplace=True)
+
+    # Adding Timestamp
+    cum['tweet_time'] = cum['tweetid'].apply(lambda x: get_tweet_timestamp(x))
+
+    # Preprocess tweet texts
+    cum_all = preprocess_text(cum)
+    cum_all['tweet_text'] = cum['tweet_text'].replace(',','')
+    cum_all['clean_text'] = cum['tweet_text'].astype(str).apply(lambda x:msg_clean(x))
+
+    # Cleaning text
+    cum_all = cum_all[cum_all['clean_tweet'].apply(lambda x: len(x.split(' ')) > 4)]
+
+    date = cum_all['tweet_time'].min().date()
+    finalDate = cum_all['tweet_time'].max().date()
+    
+    i = 1
+
+    combined_tweets_df = None
+
+    while date <= finalDate:
+        
+    
+        cum_all = cum_all.loc[(cum_all['tweet_time'].dt.date >=date)&(cum_all['tweet_time'].dt.date < date + timedelta(days=1))]
+        actual_user = cum_all.userid.unique()
+
+        combined_tweets_df = cum_all.copy()
+        combined_tweets_df.reset_index(inplace=True)
+        combined_tweets_df = combined_tweets_df.loc[:, ~combined_tweets_df.columns.str.contains('index')]
+    
+        del cum_all
+    
+        combined_tweets_df.reset_index(inplace=True)
+        combined_tweets_df = combined_tweets_df.rename(columns = {'index':'my_idx'})
+    
+        sentences = combined_tweets_df.clean_tweet.tolist()
+    
+        encoder = SentenceTransformer('stsb-xlm-r-multilingual')
+        plot_embeddings = encoder.encode(sentences)    
+
+        try:
+            dim = plot_embeddings.shape[1]  # vector dimension
+        except:
+            date = date+timedelta(days=1)
+            continue
+    
+        db_vectors1 = plot_embeddings.copy().astype(np.float32)
+        a = [i for i in range(plot_embeddings.shape[0])]
+        db_ids1 = np.array(a, dtype=np.int64)
+    
+        faiss.normalize_L2(db_vectors1)
+    
+        index1 = faiss.IndexFlatIP(dim)
+        index1 = faiss.IndexIDMap(index1)  # mapping df index as id
+        index1.add_with_ids(db_vectors1, db_ids1)
+    
+        search_query1 = plot_embeddings.copy().astype(np.float32)
+    
+        faiss.normalize_L2(search_query1)
+
+        result_plot_thres = []
+        result_plot_score = []
+        result_plot_metrics = []
+    
+        init_threshold = 0.7
+    
+        lims, D, I = index1.range_search(x=search_query1, thresh=init_threshold)
+        print('Retrieved results of index search')
+    
+        sim_score_df = create_sim_score_df(lims,D,I,search_query1)
+        print('Generated Similarity Score DataFrame')
+    
+        del combined_tweets_df
+    
+        for threshold in np.arange(0.7,1.01,0.05):
+    
+            print("Threshold: ", threshold)
+    
+            sim_score_temp_df = sim_score_df[sim_score_df.sim_score >= threshold]
+    
+            text_sim_network = sim_score_temp_df[['source_user','target_user']]
+            text_sim_network = text_sim_network.drop_duplicates(subset=['source_user','target_user'], keep='first')
+    
+            outputfile = outputDir + '/threshold_' + str(threshold) + '_'+str(i)+'.csv'
+            text_sim_network.to_csv(outputfile)
+
+        
+        date = date+timedelta(days=1)
+        i += 1
+
+
+# to run after the textSim function
+# inputDir: path of the directory containing the similarity files; it corresponds to the outputDir used in the textSim function
+def getSimilarityNetwork(inputDir):
+    
+    # Warnings
+    warnings.warn("Similarity Network")
+    
+    files = [f for f in listdir(inputDir)]
+    files.sort()
+
+    d = {'threshold_1.00':[],
+        'threshold_0.90':[],
+        'threshold_0.95':[],
+        'threshold_0.85':[],
+        'threshold_0.8':[],
+        'threshold_0.75':[],
+        'threshold_0.7':[]}
+    
+    for f in files:
+        if f[:9]=='threshold':
+            d['_'.join(f[:-4].split('_')[:2])[:14]].append(f)
+
+    i = 0
+
+    for fil in d.keys():
+        thr = float(fil.split('_')[-1][:4])
+        
+        l = d[fil]
+        if i == 0:
+            combined = pd.read_csv(os.path.join(inputDir,l[0]))
+            # Dropping NaN Records
+            combined.dropna(inplace=True)
+            combined['weight'] = thr
+            combined = combined[['weight','source_user','target_user']]
+            i += 1
+            for o in l[1:]:
+                temp = pd.read_csv(os.path.join(inputDir,o))
+                temp['weight'] = thr
+                combined = pd.concat([combined, temp],ignore_index=True)
+        else:
+            for o in l:
+                temp = pd.read_csv(os.path.join(inputDir,o))
+                temp['weight'] = thr
+                combined = pd.concat([combined, temp],ignore_index=True)
+                
+    combined['source_user'] = combined['source_user'].apply(lambda x: str(x).strip())
+    combined['target_user'] = combined['target_user'].apply(lambda x: str(x).strip())
+    
+    
+    combined.sort_values(by='weight', ascending=False, inplace=True)
+    combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)
+    
+    warnings.warn("written csv file")
+    combined.to_csv("/scratch1/ashwinba/cache/INCAS/text_sim_temp.csv")
+
+    G = nx.from_pandas_edgelist(combined, source='source_user', target='target_user', edge_attr=['weight'])
+    
+    nx.write_gml(G,"/scratch1/ashwinba/cache/INCAS/text_similarity.gml.gz")
+    warnings.warn("written gml file")
+
+    return G
