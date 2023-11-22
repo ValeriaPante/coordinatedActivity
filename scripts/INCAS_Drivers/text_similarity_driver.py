@@ -7,6 +7,10 @@ import networkx as nx
 
 import pickle
 import warnings
+import sys
+
+# Importing coordinatedActivity root directory
+sys.path.append('/scratch1/ashwinba/coordinatedActivity/scripts')
 
 from coordinatedActivity.INCAS_scripts.textSimilarity_v3 import *
 
