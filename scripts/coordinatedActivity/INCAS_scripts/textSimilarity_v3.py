@@ -257,6 +257,7 @@ def textSim(cum,outputDir):
         
         date = date+timedelta(days=1)
         i += 1
+        
 
 
 # to run after the textSim function
