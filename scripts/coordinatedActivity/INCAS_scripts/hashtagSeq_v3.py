@@ -101,7 +101,7 @@ def get_tweet_timestamp(tid):
         return None  
 
 
-def hashSeq(cum,minHashtags = 5):
+def hashSeq(cum,minHashtags = 3):
     cum = cum.loc[cum['engagementType'] != 'retweet']
     cum = preprocess_text(cum)
     cum['contentText'] = cum['contentText'].astype(str).apply(lambda x: msg_clean(x))
@@ -109,7 +109,7 @@ def hashSeq(cum,minHashtags = 5):
 
     cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
     cum.drop('contentText', axis=1, inplace=True)
-    cum = cum[['author', 'hashtag_seq']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= i]
+    cum = cum[['author', 'hashtag_seq']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
     
     cum.drop_duplicates(inplace=True)
     

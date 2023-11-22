@@ -17,6 +17,7 @@ def plot_distribution_curve(values,method):
     values.sort()
     print(values[-1])
     norms  = norm.pdf(values)
+    print(norms)
     print(norms[-1])
     plt.plot(values,norms)
     plt.ylabel("density")
@@ -24,8 +25,8 @@ def plot_distribution_curve(values,method):
     plt.savefig(os.path.join(INCAS_DIR,"{METHOD}.png".format(METHOD=method)))
     plt.show()
 
-graph_dir = "/scratch1/ashwinba/cache/INCAS/coRetweet_INCAS_0908.gexf"
-compute_eigen(graph_dir,"coRetweet")
+graph_dir = "/scratch1/ashwinba/cache/INCAS/coURL_INCAS.gexf"
+compute_eigen(graph_dir,"coURL")
 
 
 

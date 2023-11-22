@@ -4,7 +4,9 @@ import networkx as nx
 from datetime import datetime
 from datetime import timedelta
 
+
 import warnings
+count = 0
 
 # retrieves tweet's timestamp from its ID
 def get_tweet_timestamp(tid):
@@ -16,8 +18,14 @@ def get_tweet_timestamp(tid):
     except:
         return None   
 def get_retweet_userid(retweet_id,cum_df):
+    global count
     if(retweet_id != ''):
-        return list(cum_df.loc[cum_df["tweetid"] == retweet_id]['userid'].values)[0]
+        mappings  = list(cum_df.loc[cum_df["tweetid"] == retweet_id]['userid'].values)
+        if(len(mappings)!=0):
+            return mappings[0]
+        else:
+            count+=1
+            return np.nan
     return ""
 
 # Index(['annotations', 'dataTags', 'embeddedUrls', 'extraAttributes',
@@ -29,11 +37,13 @@ def get_retweet_userid(retweet_id,cum_df):
 
 def fastRetweet(cum, timeInterval = 10):
     cum.dropna(inplace=True)
-     
-    cum['tweet_timestamp'] = cum['id'].apply(lambda x: get_tweet_timestamp(int(x,cum)))
+
+    cum['tweet_timestamp'] = cum['tweetid'].apply(lambda x: get_tweet_timestamp(int(x)))
     cum['retweet_timestamp'] = cum['retweet_id'].apply(lambda x: get_tweet_timestamp(int(x)))
     # Calculating retweet_userid
-    cum['retweet_userid'] = cum['retweet_id'].apply(lambda x:get_retweet_userid(x))
+    cum['retweet_userid'] = cum['retweet_id'].apply(lambda x:get_retweet_userid(x,cum))
+    print(cum.shape)
+    print(count)
     cum = cum[['id', 'userid', 'retweet_id', 'tweet_timestamp', 'retweet_timestamp', 'retweet_userid']]
     cum.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp', 'retweet_userid']
     
