@@ -43,7 +43,7 @@ def coURL(cum):
     warnings.warn("grouped")
 
     cum['value'] = 1
-    url = dict(zip(list(cum.url.unique()), list(range(cum.url.unique().shape[0]))))
+    url = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
     cum['urls'] = cum['urls'].apply(lambda x: url[x]).astype(int)
     del url
     
