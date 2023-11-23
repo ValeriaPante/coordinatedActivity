@@ -4,6 +4,9 @@ import networkx as nx
 from datetime import datetime
 from datetime import timedelta
 
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+from scipy.sparse import csr_matrix
 
 import warnings
 count = 0
@@ -69,8 +72,8 @@ def fastRetweet(cum1, timeInterval = 10):
     userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
-    person_c = CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
-    thing_c = CategoricalDtype(sorted(cum.retweet_userid.unique()), ordered=True)
+    person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
+    thing_c = pd.CategoricalDtype(sorted(cum.retweet_userid.unique()), ordered=True)
     
     row = cum.userid.astype(person_c).cat.codes
     col = cum.retweet_userid.astype(thing_c).cat.codes
