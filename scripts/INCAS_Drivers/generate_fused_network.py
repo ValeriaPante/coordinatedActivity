@@ -20,6 +20,4 @@ def generate_fused_networks(graphs_root_dir):
 
     nx.write_gexf(os.path.join(GRAPH_DIR,"fusedNetwork.gexf"))
 
-
-
 ROOT_DIR = ""

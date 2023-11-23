@@ -3,7 +3,7 @@ from scipy.stats import norm
 import matplotlib.pyplot as plt
 import os
 
-INCAS_DIR = "/scratch1/ashwinba/cache/INCAS"
+INCAS_DIR = "/scratch1/ashwinba/cache/INCAS/similarity_graphs"
 
 def compute_eigen(graph_dir,method):
     G  = nx.read_gexf(os.path.join(graph_dir))
