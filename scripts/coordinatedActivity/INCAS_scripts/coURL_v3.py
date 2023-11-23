@@ -23,11 +23,11 @@ def coURL(cum):
     cum.dropna(inplace=True)
     warnings.warn("came in")
     
-    #print(cum.columns)
     cum['urls'] = cum['embeddedUrls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
     cum = cum.loc[cum['urls'] != ''].explode('urls')
    
     cum.drop_duplicates(inplace=True)
+    print(cum.columns)
 
     temp = cum.groupby('urls', as_index=False).count()
     cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
