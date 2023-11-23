@@ -36,18 +36,6 @@ def coURL(cum):
     cum['urls'] = cum['urls'].apply(lambda x: urls[x]).astype(int)
     del urls
 
-    temp = cum.groupby('urls', as_index=False).count()
-    #print(temp.loc[temp['userid']>=1]['url'].to_list())
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>4]['urls'].to_list())]
-    print(cum.shape)
-    warnings.warn("grouped")
-
-    cum['value'] = 1
-    url = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
-    cum['urls'] = cum['urls'].apply(lambda x: url[x]).astype(int)
-    del url
-    
-
     # Changing Datatype to string
     cum['userid'] = cum['userid'].astype(str)
 
