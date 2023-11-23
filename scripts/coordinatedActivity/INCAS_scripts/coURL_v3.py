@@ -36,15 +36,15 @@ def coURL(cum):
     cum['urls'] = cum['urls'].apply(lambda x: urls[x]).astype(int)
     del urls
 
-    temp = cum.groupby('url', as_index=False).count()
+    temp = cum.groupby('urls', as_index=False).count()
     #print(temp.loc[temp['userid']>=1]['url'].to_list())
-    cum = cum.loc[cum['url'].isin(temp.loc[temp['userid']>1]['url'].to_list())]
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
 
     warnings.warn("grouped")
 
     cum['value'] = 1
     url = dict(zip(list(cum.url.unique()), list(range(cum.url.unique().shape[0]))))
-    cum['url'] = cum['url'].apply(lambda x: url[x]).astype(int)
+    cum['urls'] = cum['urls'].apply(lambda x: url[x]).astype(int)
     del url
     
 
