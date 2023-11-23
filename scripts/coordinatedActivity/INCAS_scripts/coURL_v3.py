@@ -38,7 +38,7 @@ def coURL(cum):
 
     temp = cum.groupby('urls', as_index=False).count()
     #print(temp.loc[temp['userid']>=1]['url'].to_list())
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>4]['urls'].to_list())]
 
     warnings.warn("grouped")
 
