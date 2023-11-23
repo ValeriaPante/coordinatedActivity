@@ -20,12 +20,13 @@ import warnings
 
 def coURL(cum):
 
+    cum.dropna(inplace=True)
     warnings.warn("came in")
     
     #print(cum.columns)
     cum['urls'] = cum['embeddedUrls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
     cum = cum.loc[cum['urls'] != ''].explode('urls')
-    
+   
     cum.drop_duplicates(inplace=True)
 
     temp = cum.groupby('urls', as_index=False).count()
@@ -42,7 +43,7 @@ def coURL(cum):
     userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
-    #print(set(cum['userid'].values))
+    print(set(cum['userid'].values))
     
     person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
     thing_c = pd.CategoricalDtype(sorted(cum.url.unique()), ordered=True)
