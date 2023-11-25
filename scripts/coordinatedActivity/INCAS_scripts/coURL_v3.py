@@ -27,7 +27,7 @@ def coURL(cum):
     cum = cum.loc[cum['urls'] != ''].explode('urls')
    
     cum.drop_duplicates(inplace=True)
-    print(cum.columns)
+    print(cum.shape)
 
     temp = cum.groupby('urls', as_index=False).count()
     cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]

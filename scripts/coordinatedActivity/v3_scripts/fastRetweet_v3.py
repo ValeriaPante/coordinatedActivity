@@ -19,8 +19,7 @@ def get_tweet_timestamp(tid):
         return utcdttime
     except:
         return None   
-
-
+    
 # Data assumptions:
 #   - 2 Pandas dataframes
 #     - control: control dataset -> includes only columns ['user', 'retweeted_status', 'id']
@@ -73,7 +72,7 @@ def fastRetweet(control, treated, timeInterval = 10):
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
     person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
-    thing_c = pd.CategoricalDtype(sorted(cum.retweet_userid.unique()), ordered=True)
+    thing_c = pd.DataFrameCategoricalDtype(sorted(cum.retweet_userid.unique()), ordered=True)
     
     row = cum.userid.astype(person_c).cat.codes
     col = cum.retweet_userid.astype(thing_c).cat.codes
