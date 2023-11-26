@@ -8,8 +8,8 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 from scipy.sparse import csr_matrix
 
+
 import warnings
-count = 0
 
 # retrieves tweet's timestamp from its ID
 def get_tweet_timestamp(tid):
@@ -21,13 +21,11 @@ def get_tweet_timestamp(tid):
     except:
         return None   
 def get_retweet_userid(retweet_id,cum_df):
-    global count
     if(retweet_id != ''):
         mappings  = list(cum_df.loc[cum_df["tweetid"] == retweet_id]['userid'].values)
         if(len(mappings)!=0):
             return mappings[0]
         else:
-            count+=1
             return np.nan
     return ""
 
