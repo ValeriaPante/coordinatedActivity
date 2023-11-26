@@ -59,8 +59,7 @@ def fastRetweet(cum1, timeInterval = 10):
     cumulative = cumulative.groupby(['userid', 'retweet_userid'],as_index=False).count()
     cumulative = cumulative.loc[cumulative['delta'] > 1]
     
-    cum = nx.from_pandas_edgelist(cumulative, 'userid', 'retweet_userid','delta')
-    print(cum.columns)
+    #cum = nx.from_pandas_edgelist(cumulative, 'userid', 'retweet_userid','delta')
 
     cum['userid'].astype(int).astype(str)
     cum = cum.loc[cum['delta'] > 1]
