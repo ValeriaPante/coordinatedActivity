@@ -57,46 +57,48 @@ def fastRetweet(cum1, timeInterval = 10):
     cumulative = cumulative.groupby(['userid', 'retweet_userid'],as_index=False).count()
     cumulative = cumulative.loc[cumulative['delta'] > 1]
     
-    #cum = nx.from_pandas_edgelist(cumulative, 'userid', 'retweet_userid','delta')
-    cum = cumulative.copy()
-    del cumulative
+    G = nx.from_pandas_edgelist(cumulative, 'userid', 'retweet_userid','delta')
+    # cum = cumulative.copy()
+    # del cumulative
 
-    cum['userid'].astype(int).astype(str)
-    cum = cum.loc[cum['delta'] > 1]
+    # cum['userid'].astype(int).astype(str)
+    # cum = cum.loc[cum['delta'] > 1]
     
-    urls = dict(zip(list(cum.retweet_userid.unique()), list(range(cum.retweet_userid.unique().shape[0]))))
-    cum['retweet_userid'] = cum['retweet_userid'].apply(lambda x: urls[x]).astype(int)
-    del urls
+    # urls = dict(zip(list(cum.retweet_userid.unique()), list(range(cum.retweet_userid.unique().shape[0]))))
+    # cum['retweet_userid'] = cum['retweet_userid'].apply(lambda x: urls[x]).astype(int)
+    # del urls
     
-    userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
-    cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
+    # userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
+    # cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
-    person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
-    thing_c = pd.CategoricalDtype(sorted(cum.retweet_userid.unique()), ordered=True)
+    # person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
+    # thing_c = pd.CategoricalDtype(sorted(cum.retweet_userid.unique()), ordered=True)
     
-    row = cum.userid.astype(person_c).cat.codes
-    col = cum.retweet_userid.astype(thing_c).cat.codes
-    sparse_matrix = csr_matrix((cum["delta"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
-    del row, col, person_c, thing_c
+    # row = cum.userid.astype(person_c).cat.codes
+    # col = cum.retweet_userid.astype(thing_c).cat.codes
+    # sparse_matrix = csr_matrix((cum["delta"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
+    # del row, col, person_c, thing_c
     
-    #cum = pd.pivot_table(cum,'value', 'userid', 'urls', aggfunc='max')
-    #cum.fillna(0, inplace = True)
+    # #cum = pd.pivot_table(cum,'value', 'userid', 'urls', aggfunc='max')
+    # #cum.fillna(0, inplace = True)
     
-    vectorizer = TfidfTransformer()
-    tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
-    similarities = cosine_similarity(tfidf_matrix, dense_output=False)
+    # vectorizer = TfidfTransformer()
+    # tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
+    # similarities = cosine_similarity(tfidf_matrix, dense_output=False)
     
     
-    df_adj = pd.DataFrame(similarities.toarray())
-    del similarities
-    df_adj.index = userid.keys()
-    df_adj.columns = userid.keys()
-    G = nx.from_pandas_adjacency(df_adj)
-    del df_adj
+    # df_adj = pd.DataFrame(similarities.toarray())
+    # del similarities
+    # df_adj.index = userid.keys()
+    # df_adj.columns = userid.keys()
+    # G = nx.from_pandas_adjacency(df_adj)
+    # del df_adj
     
     G.remove_edges_from(nx.selfloop_edges(G))
     G.remove_nodes_from(list(nx.isolates(G)))
     
     warnings.warn(str(len((set(G.nodes)))))
+    
+    del cumulative
 
     return G
