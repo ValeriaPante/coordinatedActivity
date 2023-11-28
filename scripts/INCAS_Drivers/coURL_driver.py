@@ -14,10 +14,12 @@ sys.path.append('/scratch1/ashwinba/coordinatedActivity/scripts')
 
 from coordinatedActivity.INCAS_scripts.coURL_v3 import *
 
-dataset_dir = "/scratch1/ashwinba/consolidated/INCAS"
-graph_dir = "/scratch1/ashwinba/cache/INCAS"
+# Declare directories and file_name
+dataset_dir = "/scratch1/ashwinba/consolidated/INCAS" # File Location
+graph_dir = "/scratch1/ashwinba/cache/INCAS" #Final destination of graph
+file_name = "consolidated_INCAS_0908.csv.gz" # Name of the File to be read
 
-with gzip.open(os.path.join(dataset_dir,"consolidated_INCAS_0908.csv.gz")) as f:
+with gzip.open(os.path.join(dataset_dir,file_name)) as f:
     cum_df = pd.read_csv(f)
 
 warnings.warn("opened dataframe")
