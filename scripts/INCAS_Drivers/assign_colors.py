@@ -1,9 +1,11 @@
 import networkx as nx
 import os
+import sys
+import pandas as pd
 
 import warnings
 
-GRAPH_SAVE_DIR = "C:/Users/Ashwin/OneDrive/Desktop/infoOps/coordinatedActivity/cache_files"
+GRAPH_SAVE_DIR = "/scratch1/ashwinba/cache/INCAS"
 
 def set_color(attrs,node,threshold):
     # Color Mappings
@@ -29,13 +31,29 @@ def assign_colors(graph_dir,threshold=0.9):
     colors =  list(map(lambda x:set_color(attrs,x,threshold),list(attrs.keys())))
     warnings.warn("Computed colors")
 
+    
+    # Saving Temp Node File
+    nodes = list(attrs.keys())
+    eigen_centrality= list(attrs.values())
+    attr_csv = pd.DataFrame(zip(nodes,eigen_centrality,colors),columns=['node_id','eigen_centrality','color_mappings'])
+    attr_csv['label'] = attr_csv['color_mappings'].apply(lambda x:"treated" if x=="red" else "control")
+    attr_csv.to_csv(os.path.join(GRAPH_SAVE_DIR,basename+"_eigen_node_mappings.csv"))
+    warnings.warn("Saved_eigen_node_mappings csv")
+    
+    
     nx.draw(G, node_color=colors, with_labels=True, font_color='white')
     
     # Saving graph
     nx.write_gexf(G,os.path.join(GRAPH_SAVE_DIR,basename+"_colored.gexf"))
+
+    
     warnings.warn("Saved Updated network")
 
-assign_colors(graph_dir="C:/Users/Ashwin/OneDrive/Desktop/infoOps/coordinatedActivity/cache_files/coURL_INCAS_0908_eigen.gexf")
+
+
+if __name__ == "__main__":
+    graph_dir = sys.argv[1]
+    assign_colors(graph_dir = graph_dir)
 
 
 

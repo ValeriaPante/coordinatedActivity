@@ -19,6 +19,7 @@ def get_tweet_timestamp(tid):
         utcdttime = datetime.utcfromtimestamp(tstamp/1000)
         return utcdttime
     except:
+        warnings.warn("timestamp err")
         return None   
 def get_retweet_userid(retweet_id,cum_df):
     if(retweet_id != ''):
@@ -55,6 +56,7 @@ def fastRetweet(cum1, timeInterval = 10):
     cumulative = cumulative.loc[cumulative['delta'] <= timeInterval]
     
     cumulative = cumulative.groupby(['userid', 'retweet_userid'],as_index=False).count()
+    print(cumulative)
     cumulative = cumulative.loc[cumulative['delta'] > 1]
     
     G = nx.from_pandas_edgelist(cumulative, 'userid', 'retweet_userid','delta')
@@ -94,8 +96,8 @@ def fastRetweet(cum1, timeInterval = 10):
     # G = nx.from_pandas_adjacency(df_adj)
     # del df_adj
     
-    G.remove_edges_from(nx.selfloop_edges(G))
-    G.remove_nodes_from(list(nx.isolates(G)))
+    #G.remove_edges_from(nx.selfloop_edges(G))
+    #G.remove_nodes_from(list(nx.isolates(G)))
     
     warnings.warn(str(len((set(G.nodes)))))
     
