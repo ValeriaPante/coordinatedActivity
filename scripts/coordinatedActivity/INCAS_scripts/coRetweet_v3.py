@@ -29,8 +29,11 @@ import warnings
 #        'translatedTitle'],
 #       dtype='object')
 
-
+# Mandatory Columns
+# ['retweet_id','tweet_id','userid']
 def coRetweet(cum):
+
+    cum.rename({"retweet_tweetid":"retweet_id"},axis=1,inplace=True)
 
     warnings.warn("came in")
     

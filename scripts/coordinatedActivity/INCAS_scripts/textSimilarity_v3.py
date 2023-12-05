@@ -160,6 +160,9 @@ def create_sim_score_df(lims,D,I,search_query1):
 #        'translatedTitle','engagementType','tweetid'],
 #       dtype='object'
 
+# Mandatory Fields
+# 1. tweet_text
+
 
 def textSim(cum,outputDir):
 
@@ -317,7 +320,6 @@ def getSimilarityNetwork(inputDir):
 
     G = nx.from_pandas_edgelist(combined, source='source_user', target='target_user', edge_attr=['weight'])
     
-    nx.write_gml(G,"/scratch1/ashwinba/cache/INCAS/text_similarity.gml.gz")
     warnings.warn("written gml file")
 
     return G
