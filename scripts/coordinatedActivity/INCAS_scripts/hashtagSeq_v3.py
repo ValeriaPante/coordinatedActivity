@@ -100,9 +100,19 @@ def get_tweet_timestamp(tid):
     except:
         return None  
 
+# Mandatory Columns
+# 1. contentText
+# 2. is_retweet
+# 3. engagement_type
 
 def hashSeq(cum,minHashtags = 3):
-    cum = cum.loc[cum['engagementType'] != 'retweet']
+    cum = cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
+
+    if("is_retweet" in cum.columns):
+        cum = cum.loc[cum['is_retweet'] == "TRUE"]
+    else:
+        cum = cum.loc[cum['engagementType'] != 'retweet']
+    
     cum = preprocess_text(cum)
     cum['contentText'] = cum['contentText'].astype(str).apply(lambda x: msg_clean(x))
 
@@ -147,3 +157,6 @@ def hashSeq(cum,minHashtags = 3):
     G.remove_nodes_from(list(nx.isolates(G)))
 
     return G
+
+
+
