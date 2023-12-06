@@ -37,9 +37,9 @@ def get_retweet_userid(retweet_id,cum_df):
 #        'translatedTitle'],
 #       dtype='object'
 
-def fastRetweet(cum1, timeInterval = 3):
-    cum1.dropna(subset=['tweetid'],inplace=True)
-
+def fastRetweet(cum1, timeInterval = 20):
+    cum1.dropna(subset=['tweetid','retweet_id'],inplace=True)
+    cum1.sort_values(by=['timePublished'],inplace=True)
     cum1['tweet_timestamp'] = cum1['tweetid'].apply(lambda x: get_tweet_timestamp(int(x)))
     cum1['retweet_timestamp'] = cum1['retweet_id'].apply(lambda x: get_tweet_timestamp(int(x)))
     # Calculating retweet_userid
@@ -51,14 +51,18 @@ def fastRetweet(cum1, timeInterval = 3):
   
     cum1['delta'] = (cum1['tweet_timestamp'] - cum1['retweet_timestamp']).dt.seconds
     print(cum1['delta'].head(3))
+    warnings.warn(str(cum1.shape))
 
     cumulative = cum1[['userid','retweet_userid', 'delta']].copy()
     cumulative['userid'].astype(int).astype(str)
     cumulative = cumulative.loc[cumulative['delta'] <= timeInterval]
+    warnings.warn(string(cumulative.shape))
+    print(cumulative.shape)
     
     cumulative = cumulative.groupby(['userid', 'retweet_userid'],as_index=False).count()
-    print(cumulative)
-    cumulative = cumulative.loc[cumulative['delta'] > 1]
+    #print(cumulative)
+    cumulative = cumulative.loc[cumulative['delta'] >= 1]
+    #print(cumulative.shape)
     
     G = nx.from_pandas_edgelist(cumulative, 'userid', 'retweet_userid','delta')
     # cum = cumulative.copy()

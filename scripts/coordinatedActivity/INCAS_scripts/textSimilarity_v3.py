@@ -30,7 +30,8 @@ import gzip
 import glob
 from datetime import datetime
 from datetime import timedelta
-import networkx as nx 
+import networkx as nx
+import shutil
 
 import warnings
 
@@ -50,6 +51,9 @@ nltk.download('stopwords')
 
 #Load English Stop Words
 stopword = stopwords.words('english')
+
+combined_tweets_df = None
+
 
 def preprocess_text(df):
     # Cleaning tweets in en language
@@ -112,6 +116,8 @@ def msg_clean(msg):
     return msg
 
 def create_sim_score_df(lims,D,I,search_query1):
+    global combined_tweets_df
+    
     source_idx = []
     target_idx = []
     sim_score = []
@@ -165,10 +171,14 @@ def create_sim_score_df(lims,D,I,search_query1):
 
 
 def textSim(cum,outputDir):
+    global combined_tweets_df
 
     # Creating output dir if not exists
-    if not os.path.exists(outputDir):
-        os.mkdir(outputDir)
+    if os.path.exists(outputDir):
+        shutil.rmtree(outputDir)
+        
+    os.mkdir(outputDir)
+
 
     # Changing colummns
     cum.rename(columns={'engagementType':'tweet_type','contentText':'tweet_text'},inplace=True)
@@ -179,29 +189,28 @@ def textSim(cum,outputDir):
     # Preprocess tweet texts
     cum_all = preprocess_text(cum)
     cum_all['tweet_text'] = cum['tweet_text'].replace(',','')
-    cum_all['clean_text'] = cum['tweet_text'].astype(str).apply(lambda x:msg_clean(x))
+    cum_all['clean_tweet'] = cum['tweet_text'].astype(str).apply(lambda x:msg_clean(x))
 
     # Cleaning text
     cum_all = cum_all[cum_all['clean_tweet'].apply(lambda x: len(x.split(' ')) > 4)]
+    
+    #print(cum_all.shape)
 
     date = cum_all['tweet_time'].min().date()
     finalDate = cum_all['tweet_time'].max().date()
     
     i = 1
 
-    combined_tweets_df = None
 
     while date <= finalDate:
-        
-    
-        cum_all = cum_all.loc[(cum_all['tweet_time'].dt.date >=date)&(cum_all['tweet_time'].dt.date < date + timedelta(days=1))]
+        cum_all1 = cum_all.loc[(cum_all['tweet_time'].dt.date >=date)&(cum_all['tweet_time'].dt.date < date + timedelta(days=1))]
         actual_user = cum_all.userid.unique()
 
-        combined_tweets_df = cum_all.copy()
+        combined_tweets_df = cum_all1.copy()
         combined_tweets_df.reset_index(inplace=True)
         combined_tweets_df = combined_tweets_df.loc[:, ~combined_tweets_df.columns.str.contains('index')]
     
-        del cum_all
+        del cum_all1
     
         combined_tweets_df.reset_index(inplace=True)
         combined_tweets_df = combined_tweets_df.rename(columns = {'index':'my_idx'})
@@ -266,6 +275,8 @@ def textSim(cum,outputDir):
 # to run after the textSim function
 # inputDir: path of the directory containing the similarity files; it corresponds to the outputDir used in the textSim function
 def getSimilarityNetwork(inputDir):
+
+    global combined_tweets_df
     
     # Warnings
     warnings.warn("Similarity Network")

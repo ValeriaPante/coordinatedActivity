@@ -105,8 +105,8 @@ def get_tweet_timestamp(tid):
 # 2. is_retweet
 # 3. engagement_type
 
-def hashSeq(cum,minHashtags = 3):
-    cum = cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
+def hashSeq(cum,minHashtags = 1):
+    cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
 
     if("is_retweet" in cum.columns):
         cum = cum.loc[cum['is_retweet'] == "TRUE"]
@@ -119,12 +119,16 @@ def hashSeq(cum,minHashtags = 3):
 
     cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
     cum.drop('contentText', axis=1, inplace=True)
-    cum = cum[['author', 'hashtag_seq']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
+    cum = cum[['hashtag_seq','userid']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
+    print("After Hash")
+    print(cum.shape)
     
-    cum.drop_duplicates(inplace=True)
+    #cum.drop_duplicates(inplace=True)
     
     temp = cum.groupby('hashtag_seq', as_index=False).count()
-    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['author']>1]['hashtag_seq'].to_list())]
+    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['userid']>1]['hashtag_seq'].to_list())]
+    
+    print(cum.shape)
 
     cum['value'] = 1
     
@@ -132,10 +136,11 @@ def hashSeq(cum,minHashtags = 3):
     cum['hashtag_seq'] = cum['hashtag_seq'].apply(lambda x: hashs[x]).astype(int)
     del hashs
 
-    userid = dict(zip(list(cum.author.astype(str).unique()), list(range(cum.author.unique().shape[0]))))
-    cum['author'] = cum['author'].astype(str).apply(lambda x: userid[x]).astype(int)
+    #userid = dict(zip(list(cum.author.astype(str).unique()), list(range(cum.author.unique().shape[0]))))
+    #cum['author'] = cum['author'].astype(str).apply(lambda x: userid[x]).astype(int)
+    userid = list(cum.userid.values)
     
-    person_c = pd.CategoricalDtype(sorted(cum.author.unique()), ordered=True)
+    person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
     thing_c = pd.CategoricalDtype(sorted(cum.hashtag_seq.unique()), ordered=True)
     
     row = cum.author.astype(person_c).cat.codes
@@ -149,8 +154,10 @@ def hashSeq(cum,minHashtags = 3):
 
     df_adj = pd.DataFrame(similarities.toarray())
     del similarities
-    df_adj.index = userid.keys()
-    df_adj.columns = userid.keys()
+    #df_adj.index = userid.values
+    df_adj.index = userid
+    df_adj.columns = userid
+    #df_adj.columns = userid.values
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj
     

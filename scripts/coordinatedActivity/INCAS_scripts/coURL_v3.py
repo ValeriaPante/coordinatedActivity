@@ -31,7 +31,7 @@ def coURL(cum):
 
     temp = cum.groupby('urls', as_index=False).count()
     #cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>40]['urls'].to_list())]
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>600]['urls'].to_list())]
 
     cum['value'] = 1
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
@@ -44,7 +44,7 @@ def coURL(cum):
     userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
-    print(set(cum['userid'].values))
+    #print(set(cum['userid'].values))
     
     person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
     thing_c = pd.CategoricalDtype(sorted(cum.url.unique()), ordered=True)

@@ -1,4 +1,3 @@
-
 import os
 import sys
 import pandas as pd
@@ -26,6 +25,8 @@ try:
         cum_df = pd.read_csv(f)
 except:
     cum_df = pd.read_csv(os.path.join(dataset_dir,file_name))
+    
+print(cum_df.shape)
 
 warnings.warn("opened dataframe")
 G = hashSeq(cum_df)

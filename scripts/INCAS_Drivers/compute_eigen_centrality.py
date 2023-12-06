@@ -24,8 +24,8 @@ def plot_distribution_curve(values,method):
     plt.savefig(os.path.join(INCAS_DIR,"{METHOD}.png".format(METHOD=method)))
     #plt.show()
 
-graph_dir = "/scratch1/ashwinba/cache/INCAS/hashSeq_INCAS.gexf"
-compute_eigen(graph_dir,"hashSeq")
+graph_dir = "/scratch1/ashwinba/cache/INCAS/coURL_INCAS.gexf"
+compute_eigen(graph_dir,"coURL")
 
 
 
