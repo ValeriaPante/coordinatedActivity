@@ -10,22 +10,42 @@ INCAS_DIR = "/scratch1/ashwinba/cache/INCAS/similarity_graphs"
 def compute_eigen(graph_dir,method):
     G  = nx.read_gexf(os.path.join(graph_dir))
     centrality = nx.eigenvector_centrality(G)
-    plot_distribution_curve(list(centrality.values()),method)
+    #plot_cdf_curve(list(centrality.values()),method)
+    plot_pdf_curve(list(centrality.values()),method)
     centrality_dict =  {key:{'eigen_centrality':centrality[key]} for key in list(centrality.keys())}
     nx.set_node_attributes(G,centrality_dict)
     nx.write_gexf(G,os.path.join(INCAS_DIR,"{METHOD}_INCAS_0908_eigen.gexf".format(METHOD=method)))
 
-def plot_distribution_curve(values,method):
+
+
+
+def plot_cdf_curve(values,method):
     sns.set(font_scale=1.5, rc={'axes.facecolor':'white', 'figure.facecolor':'white', 'figure.figsize':(4,4)})
     sns.set_style("whitegrid")
     plt.figure()
     sns.kdeplot(data = values, cumulative = True,linewidth=5)
     plt.title(method)
-    plt.savefig(os.path.join(INCAS_DIR,"{METHOD}.png".format(METHOD=method)))
-    #plt.show()
+    plt.savefig(os.path.join(INCAS_DIR,"{METHOD}_CDF.png".format(METHOD=method)))
+    plt.show()
+    
+def plot_pdf_curve(values,method):
+    sns.set(font_scale=1.5, rc={'axes.facecolor':'white', 'figure.facecolor':'white', 'figure.figsize':(5,5)})
+    sns.set_style("whitegrid")
+    plt.figure()
+    sns.kdeplot(data = values, cumulative = False,linewidth=5)
+    plt.ylabel("density")
+    plt.xlabel("eigen-centrality")
+    plt.title(method)
+    plt.savefig(os.path.join(INCAS_DIR,"{METHOD}_PDF.png".format(METHOD=method)))
+    plt.show()
 
-graph_dir = "/scratch1/ashwinba/cache/INCAS/coURL_INCAS.gexf"
-compute_eigen(graph_dir,"coURL")
+graph_dir = "/scratch1/ashwinba/cache/INCAS/coRetweet_INCAS.gexf"
+compute_eigen(graph_dir,"coRetweet")
+
+
+graph_root_dir = "/scratch1/ashwinba/cache/INCAS"
+graphs = {"coRetweet":"coRetweet_INCAS.gexcf","textsimilarity":"textsim_INCAS.gexf","fastretweet":"fastretweet_INCAS.gexf","hashSeq":"hashSeq_INCAS.gexf","fusednetwork":"fusedNetwork.gexf"}
+
 
 
 

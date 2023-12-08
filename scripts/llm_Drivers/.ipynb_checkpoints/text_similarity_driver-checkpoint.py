@@ -18,7 +18,7 @@ OUTPUT_DIR = "/scratch1/ashwinba/cache/llms/thresholds"
 # Declare directories and file_name
 dataset_dir = "/scratch1/ashwinba/data" # File Location
 graph_dir = "/scratch1/ashwinba/cache/llms" #Final destination of graph
-file_name = "df_train_venezuela.csv" # Name of the File to be read
+file_name = "df_test_venezuela.csv" # Name of the File to be read
 country_name = file_name.split(".")[0]
 
 try:
