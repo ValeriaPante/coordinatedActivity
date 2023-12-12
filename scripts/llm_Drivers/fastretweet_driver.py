@@ -20,9 +20,12 @@ graph_dir = "/scratch1/ashwinba/cache/llms" #Final destination of graph
 file_name = "df_train_russia.csv" # Name of the File to be read
 country_name = file_name.split("_")[-1].split(".")[0]
 
+try:
+    with gzip.open(os.path.join(dataset_dir,file_name)) as f:
+        cum_df = pd.read_csv(f)
+except:
+    cum_df = pd.read_csv(os.path.join(dataset_dir,file_name))
 
-with gzip.open(os.path.join(dataset_dir,file_name)) as f:
-    cum_df = pd.read_csv(f)
 
 warnings.warn("opened dataframe")
 G = fastRetweet(cum_df)
