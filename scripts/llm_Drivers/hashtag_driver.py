@@ -17,7 +17,7 @@ from coordinatedActivity.INCAS_scripts.hashtagSeq_v3 import *
 # Declare directories and file_name
 dataset_dir = "/scratch1/ashwinba/data" # File Location
 graph_dir = "/scratch1/ashwinba/cache/llms" #Final destination of graph
-file_name = "df_train_ecuador.csv" # Name of the File to be read
+file_name = "df_train_russia.csv" # Name of the File to be read
 country_name = file_name.split("_")[-1].split(".")[0]
 
 try:

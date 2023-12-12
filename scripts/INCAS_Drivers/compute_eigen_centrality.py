@@ -29,7 +29,7 @@ def plot_cdf_curve(values,method):
     plt.show()
     
 def plot_pdf_curve(values,method):
-    sns.set(font_scale=1.5, rc={'axes.facecolor':'white', 'figure.facecolor':'white', 'figure.figsize':(5,5)})
+    sns.set(font_scale=1.5, rc={'axes.facecolor':'white', 'figure.facecolor':'white', 'figure.figsize':(6,6)})
     sns.set_style("whitegrid")
     plt.figure()
     sns.kdeplot(data = values, cumulative = False,linewidth=5)
