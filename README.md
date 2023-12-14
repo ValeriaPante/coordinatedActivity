@@ -14,6 +14,8 @@ This repository holds the implementation of state-of-the-art detection methods f
 - Hashtag Sequence (Pacheco et al., 2021)
 - Text Similarity (Pacheco et al., 2020)
 
+Additionally, you can find a Co-sharing implementation wich generalizes the five methods and can potentially work for any kind of feature that a user can share.
+
 Please cite the following work. 
 
 ```
