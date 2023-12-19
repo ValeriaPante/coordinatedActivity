@@ -14,7 +14,9 @@ This repository holds the implementation of state-of-the-art detection methods f
 - Hashtag Sequence (Pacheco et al., 2021)
 - Text Similarity (Pacheco et al., 2020)
 
-Additionally, you can find a Co-sharing implementation wich generalizes the five methods and can potentially work for any kind of feature that a user can share.
+Additionally, you can find a Co-sharing implementation which generalizes the five methods and can potentially work for any kind of feature that a user can share.
+
+The state-of-art methods were used all together to have a comprehensive overview of users similarity across multiple features. To do this, the utils script provides a function that allows to merge multiple similarity networks. In this script, you can also find the function for the computation of the centrality of a user in a network, method used to detect coordinated users.
 
 Please cite the following work. 
 
