@@ -283,18 +283,26 @@ def getSimilarityNetwork(inputDir):
     
     files = [f for f in listdir(inputDir)]
     files.sort()
-
-    d = {'threshold_1.00':[],
-        'threshold_0.90':[],
-        'threshold_0.95':[],
-        'threshold_0.85':[],
-        'threshold_0.8':[],
-        'threshold_0.75':[],
-        'threshold_0.7':[]}
+    
+    
+    # Aggregate thresholds
+    # d = {'threshold_1.00':[],
+    #     'threshold_0.90':[],
+    #     'threshold_0.95':[],
+    #     'threshold_0.85':[],
+    #     'threshold_0.8':[],
+    #     'threshold_0.75':[],
+    #     'threshold_0.7':[]}
+        
+    # Particular Threshold
+    d = {'threshold_0.95':[]}
     
     for f in files:
-        if f[:9]=='threshold':
-            d['_'.join(f[:-4].split('_')[:2])[:14]].append(f)
+        try:
+            if f[:9]=='threshold':
+                d['_'.join(f[:-4].split('_')[:2])[:14]].append(f)
+        except Exception as e:
+            pass
 
     i = 0
 

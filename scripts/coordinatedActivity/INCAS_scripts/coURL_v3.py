@@ -23,15 +23,19 @@ def coURL(cum):
     cum.dropna(inplace=True)
     warnings.warn("came in")
     
+    # Renaming columns if necessary
+    cum.rename({'urls':'embeddedUrls'},axis=1,inplace=True)
+    
     cum['urls'] = cum['embeddedUrls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
     cum = cum.loc[cum['urls'] != ''].explode('urls')
    
-    cum.drop_duplicates(inplace=True)
+    cum.drop_duplicates(subset=['userid'],inplace=True)
     print(cum.shape)
 
     temp = cum.groupby('urls', as_index=False).count()
-    #cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>600]['urls'].to_list())]
+    print(temp)
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
+    #cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>600]['urls'].to_list())]
 
     cum['value'] = 1
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
@@ -65,6 +69,8 @@ def coURL(cum):
     vectorizer = TfidfTransformer()
     tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
     similarities = cosine_similarity(tfidf_matrix, dense_output=False)
+
+    type(similarities)
 
     #df_adj = pd.DataFrame(similarities.toarray())
     df_adj = pd.DataFrame(similarities.toarray())

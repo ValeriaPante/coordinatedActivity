@@ -27,6 +27,8 @@ except:
     cum_df = pd.read_csv(os.path.join(dataset_dir,file_name))
 
 
+print(cum_df.columns)
+
 warnings.warn("opened dataframe")
 G = coURL(cum_df)
 
