@@ -26,6 +26,10 @@ def coURL(cum):
     # Renaming columns if necessary
     cum.rename({'urls':'embeddedUrls'},axis=1,inplace=True)
     
+    
+    
+    cum.dropna(subset=['embeddedUrls'],inplace=True)
+    
     cum['urls'] = cum['embeddedUrls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
     cum = cum.loc[cum['urls'] != ''].explode('urls')
    
@@ -34,7 +38,10 @@ def coURL(cum):
 
     temp = cum.groupby('urls', as_index=False).count()
     print(temp)
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
+    
+    co_url_thresh = temp['userid'].max()*0.80 
+    
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>co_url_thresh]['urls'].to_list())]
     #cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>600]['urls'].to_list())]
 
     cum['value'] = 1
@@ -70,9 +77,8 @@ def coURL(cum):
     tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
     similarities = cosine_similarity(tfidf_matrix, dense_output=False)
 
-    type(similarities)
+    print(type(similarities))
 
-    #df_adj = pd.DataFrame(similarities.toarray())
     df_adj = pd.DataFrame(similarities.toarray())
 
     del similarities
