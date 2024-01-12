@@ -26,20 +26,21 @@ def coURL(cum):
     # Renaming columns if necessary
     cum.rename({'urls':'embeddedUrls'},axis=1,inplace=True)
     
-    
-    
     cum.dropna(subset=['embeddedUrls'],inplace=True)
     
     cum['urls'] = cum['embeddedUrls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
     cum = cum.loc[cum['urls'] != ''].explode('urls')
    
     cum.drop_duplicates(subset=['userid'],inplace=True)
+    
+    cum = cum[['userid','urls']].dropna()
+    
     print(cum.shape)
 
     temp = cum.groupby('urls', as_index=False).count()
     print(temp)
     
-    co_url_thresh = temp['userid'].max()*0.80 
+    co_url_thresh = temp['userid'].max()*0.50 
     
     cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>co_url_thresh]['urls'].to_list())]
     #cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>600]['urls'].to_list())]
@@ -58,10 +59,10 @@ def coURL(cum):
     #print(set(cum['userid'].values))
     
     person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
-    thing_c = pd.CategoricalDtype(sorted(cum.url.unique()), ordered=True)
+    thing_c = pd.CategoricalDtype(sorted(cum.urls.unique()), ordered=True)
     
     row = cum.userid.astype(person_c).cat.codes
-    col = cum.url.astype(thing_c).cat.codes
+    col = cum.urls.astype(thing_c).cat.codes
     #print(row)
     #print(col)
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
@@ -91,6 +92,7 @@ def coURL(cum):
     del df_adj
     
     G.remove_nodes_from(list(nx.isolates(G)))
+    G.remove_edges_from(nx.selfloop_edges(G))
 
     return G
 

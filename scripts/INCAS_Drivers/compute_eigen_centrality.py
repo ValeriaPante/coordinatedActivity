@@ -51,8 +51,8 @@ def plot_pdf_curve(values,method):
 
 
 graph_root_dir = "/scratch1/ashwinba/cache/INCAS"
-graphs = {"coRetweet":"coRetweet_INCAS.gexf","textsimilarity":"textsim_INCAS.gexf","fastretweet":"fastretweet_INCAS.gexf","hashSeq":"hashSeq_INCAS.gexf","fusednetwork":"fusedNetwork.gexf"}
-# graphs = {"coRetweet":"coRetweet_INCAS.gexf"}
+#graphs = {"coRetweet":"coRetweet_INCAS.gexf","textsimilarity":"textsim_INCAS.gexf","fastretweet":"fastretweet_INCAS.gexf","hashSeq":"hashSeq_INCAS.gexf","fusednetwork":"fusedNetwork.gexf"}
+graphs = {"fusednetwork":"fusedNetwork.gexf"}
 
 for method,graph_dir in graphs.items():
     compute_eigen(os.path.join(graph_root_dir,graph_dir),method)

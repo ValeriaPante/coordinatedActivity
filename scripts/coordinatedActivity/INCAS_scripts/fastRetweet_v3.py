@@ -48,9 +48,12 @@ def fastRetweet(cum1, timeInterval = 20000):
     cum1.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp', 'retweet_userid']
     
     #print("tweet",len(cum["tweet_timestamp"].values))
+    
   
     cum1['delta'] = (cum1['tweet_timestamp'] - cum1['retweet_timestamp']).dt.seconds
-    print(cum1['delta'].head(3))
+    values1 = cum1['delta'].values()
+    values1.sort()
+    warnings.warn(str(values1[0]))
     warnings.warn(str(cum1.shape))
 
     cumulative = cum1[['userid','retweet_userid', 'delta']].copy()

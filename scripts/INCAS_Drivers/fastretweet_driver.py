@@ -22,6 +22,8 @@ file_name = "consolidated_INCAS_0908.csv.gz" # Name of the File to be read
 
 with gzip.open(os.path.join(dataset_dir,file_name)) as f:
     cum_df = pd.read_csv(f)
+    
+warnings.warn(str(cum_df.shape))
 
 warnings.warn("opened dataframe")
 G = fastRetweet(cum_df)
