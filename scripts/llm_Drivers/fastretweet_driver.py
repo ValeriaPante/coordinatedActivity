@@ -12,7 +12,7 @@ import warnings
 # Importing coordinatedActivity root directory
 sys.path.append('/scratch1/ashwinba/coordinatedActivity/scripts')
 
-from coordinatedActivity.INCAS_scripts.hashtagSeq_v3 import *
+from coordinatedActivity.INCAS_scripts.fastRetweet_v3 import *
 
 # Declare directories and file_name
 dataset_dir = "/scratch1/ashwinba/data" # File Location
@@ -25,13 +25,13 @@ try:
         cum_df = pd.read_csv(f)
 except:
     cum_df = pd.read_csv(os.path.join(dataset_dir,file_name))
-    
-print(cum_df.shape)
+
 
 warnings.warn("opened dataframe")
-G = hashSeq(cum_df)
+G = fastRetweet(cum_df)
 
 # Saving Graph in GML File
-nx.write_gexf(G,os.path.join(graph_dir,"hashSeq_llms{COUNTRY}.gexf".format(COUNTRY=country_name)))
+nx.write_gexf(G,os.path.join(graph_dir,"fastretweet_llms{COUNTRY}.gexf".format(COUNTRY=country_name)))
 warnings.warn("file written")
+
 

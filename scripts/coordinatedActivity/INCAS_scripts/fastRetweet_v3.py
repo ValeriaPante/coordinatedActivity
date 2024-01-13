@@ -37,7 +37,7 @@ def get_retweet_userid(retweet_id,cum_df):
 #        'translatedTitle'],
 #       dtype='object'
 
-def fastRetweet(cum1, timeInterval = 20):
+def fastRetweet(cum1, timeInterval = 20000):
     cum1.dropna(subset=['tweetid','retweet_id'],inplace=True)
     cum1.sort_values(by=['timePublished'],inplace=True)
     cum1['tweet_timestamp'] = cum1['tweetid'].apply(lambda x: get_tweet_timestamp(int(x)))
@@ -48,15 +48,18 @@ def fastRetweet(cum1, timeInterval = 20):
     cum1.columns = ['tweetid', 'userid', 'retweet_tweetid', 'tweet_timestamp', 'retweet_timestamp', 'retweet_userid']
     
     #print("tweet",len(cum["tweet_timestamp"].values))
+    
   
     cum1['delta'] = (cum1['tweet_timestamp'] - cum1['retweet_timestamp']).dt.seconds
-    print(cum1['delta'].head(3))
+    values1 = cum1['delta'].values()
+    values1.sort()
+    warnings.warn(str(values1[0]))
     warnings.warn(str(cum1.shape))
 
     cumulative = cum1[['userid','retweet_userid', 'delta']].copy()
     cumulative['userid'].astype(int).astype(str)
     cumulative = cumulative.loc[cumulative['delta'] <= timeInterval]
-    warnings.warn(string(cumulative.shape))
+    warnings.warn(str(cumulative.shape))
     print(cumulative.shape)
     
     cumulative = cumulative.groupby(['userid', 'retweet_userid'],as_index=False).count()

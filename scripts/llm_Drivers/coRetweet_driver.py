@@ -17,8 +17,10 @@ from coordinatedActivity.INCAS_scripts.coRetweet_v3 import *
 #Declare directories and file_name
 dataset_dir = "/scratch1/ashwinba/data" # File Location
 graph_dir = "/scratch1/ashwinba/cache/llms" #Final destination of graph
-file_name = "df_train_ecuador.csv" # Name of the File to be read
-country_name = file_name.split("_")[-1].split(".")[0]
+file_name = "df_test_russia.csv" # Name of the File to be read
+country_name = file_name.split(".")[0]
+
+warnings.warn(country_name)
 
 try:
     with gzip.open(os.path.join(dataset_dir,file_name)) as f:
@@ -28,6 +30,9 @@ except:
 
 warnings.warn("opened dataframe")
 G = coRetweet(cum_df)
+
+# Removing self loops
+G.remove_edges_from(nx.selfloop_edges(G))
 
 # Saving Graph in GML File
 nx.write_gexf(G,os.path.join(graph_dir,"coRetweet_llms_{COUNTRY}.gexf".format(COUNTRY=country_name)))

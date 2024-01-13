@@ -105,7 +105,7 @@ def get_tweet_timestamp(tid):
 # 2. is_retweet
 # 3. engagement_type
 
-def hashSeq(cum,minHashtags = 1):
+def hashSeq(cum,minHashtags = 4):
     cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
 
     if("is_retweet" in cum.columns):
@@ -117,7 +117,7 @@ def hashSeq(cum,minHashtags = 1):
     cum['contentText'] = cum['contentText'].astype(str).apply(lambda x: msg_clean(x))
 
 
-    cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
+    cum['hashtag_seq'] = ['__'.join(sorted([tag.strip("#") for tag in tweet.split() if tag.startswith("#")])) for tweet in cum['contentText'].values.astype(str)]
     cum.drop('contentText', axis=1, inplace=True)
     cum = cum[['hashtag_seq','userid']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
     print("After Hash")

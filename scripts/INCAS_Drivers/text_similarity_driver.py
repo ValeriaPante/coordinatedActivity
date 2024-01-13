@@ -26,7 +26,7 @@ with gzip.open(os.path.join(dataset_dir,file_name)) as f:
 
 warnings.warn("opened dataframe")
 
-textSim(cum_df,OUTPUT_DIR)
+#textSim(cum_df,OUTPUT_DIR)
 g = getSimilarityNetwork(OUTPUT_DIR)
 warnings.warn("Similarity Network Recieved")
 

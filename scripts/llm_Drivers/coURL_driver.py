@@ -1,25 +1,24 @@
 import os
+import sys
 import pandas as pd
 import numpy as np
 
-import matplotlib.pyplot as plt
+import pickle
 import networkx as nx
 
-import pickle
+import gzip
 import warnings
-import sys
 
 # Importing coordinatedActivity root directory
 sys.path.append('/scratch1/ashwinba/coordinatedActivity/scripts')
 
-from coordinatedActivity.INCAS_scripts.textSimilarity_v3 import *
+from coordinatedActivity.INCAS_scripts.coURL_v3 import *
 
-OUTPUT_DIR = "/scratch1/ashwinba/cache/llms/thresholds"
 # Declare directories and file_name
 dataset_dir = "/scratch1/ashwinba/data" # File Location
 graph_dir = "/scratch1/ashwinba/cache/llms" #Final destination of graph
-file_name = "df_train_venezuela.csv" # Name of the File to be read
-country_name = file_name.split(".")[0]
+file_name = "df_train_russia.csv" # Name of the File to be read
+country_name = file_name.split("_")[-1].split(".")[0]
 
 try:
     with gzip.open(os.path.join(dataset_dir,file_name)) as f:
@@ -27,12 +26,14 @@ try:
 except:
     cum_df = pd.read_csv(os.path.join(dataset_dir,file_name))
 
-warnings.warn("opened dataframe")
 
-textSim(cum_df,OUTPUT_DIR)
-g = getSimilarityNetwork(OUTPUT_DIR)
-warnings.warn("Similarity Network Recieved")
+print(cum_df.columns)
+
+warnings.warn("opened dataframe")
+G = coURL(cum_df)
 
 # Saving Graph in GML File
-nx.write_gexf(g,os.path.join(graph_dir,"textsim_llm_{COUNTRY}.gexf".format(COUNTRY=country_name)))
-warnings.warn("Sim Network Written")
+nx.write_gexf(G,os.path.join(graph_dir,"coURL_llms{COUNTRY}.gexf".format(COUNTRY=country_name)))
+warnings.warn("file written")
+
+

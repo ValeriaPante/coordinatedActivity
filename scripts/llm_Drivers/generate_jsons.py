@@ -35,9 +35,9 @@ def generate_jsons(graph_dir,output_dir):
 
 # Declaring Directories
 file_dir = "/scratch1/ashwinba/cache/llms"
-reference_csv = "/scratch1/ashwinba/data/df_train_venezuela.csv"
+reference_csv = "/scratch1/ashwinba/data/df_train_russia.csv"
 output_dir ="/scratch1/ashwinba/cache/llms/json_resps"
-FILE_NAME = "textsim_llm_df_train_venezuela.gexf"
+FILE_NAME = "coRetweet_llms_df_train_russia.gexf"
 graph_file_path = os.path.join(file_dir,FILE_NAME)
 
 generate_jsons(graph_file_path,output_dir)
