@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 
-GRAPH_DIR = ""
+GRAPH_DIR = "/scratch1/ashwinba/cache/INCAS/NMI_INCAS"
 
 def generate_NMI(graphs_dir,threshold):
     nodes = []
@@ -24,7 +24,9 @@ def generate_NMI(graphs_dir,threshold):
         G = nx.read_gexf(graph)
         graphs_dicts[method_name] = G
         nodes+=list(G.nodes)
-        nodes = set(list(nodes))
+    
+    # Unique Set
+    nodes = list(set(list(nodes)))
 
     # Compute eigen centralities
     for method_name,graph in graphs_dicts.items():
@@ -34,7 +36,10 @@ def generate_NMI(graphs_dir,threshold):
         filtered_nodes = dict(filter(lambda item: item[1]>=threshold,eigen_centrality.items()))
 
         # filtered_dict 
-        filtered_dict[method_name] = list(filtered_nodes.keys())
+        filtered_dict[method_name] = list(set(filtered_nodes.keys()))
+        
+        # Sample Warnings
+        warnings.warn(str(method)+" done")
 
     # Constructing DataFrame
     for method_name,filtered_nodes in filtered_dict.items():
@@ -51,16 +56,19 @@ def generate_NMI(graphs_dir,threshold):
     NMI_dict ={}
     for method in methods:
         NMI_arr = [normalized_mutual_info_score(final_df[method],final_df[method1]) for method1 in methods]
-        NMI_dict[method] = np.series(NMI_arr,index=methods)
+        NMI_dict[method] = pd.Series(NMI_arr,index=methods)
+
 
     NMI_df = pd.DataFrame(NMI_dict,columns=methods)
+    
+    warnings.warn(str(NMI_df.shape))
 
     # Plot NMI Heatmap
     sns.heatmap(NMI_df)
     plt.imsave(os.path.join(GRAPH_DIR,"NMI_{THRESH}.png".format(THRESH=str(threshold))))
 
         
-ROOT_DIR = ""
+ROOT_DIR = "/scratch1/ashwinba/cache/INCAS"
 graphs_dir = glob.glob(os.path.join(ROOT_DIR,"*.gexf"))
 warnings.warn(str(graphs_dir))
 
