@@ -18,16 +18,12 @@ Additionally, you can find a Co-sharing implementation which generalizes the fiv
 
 The state-of-art methods were used all together to have a comprehensive overview of users similarity across multiple features. To do this, the utils script provides a function that allows to merge multiple similarity networks. In this script, you can also find the function for the computation of the centrality of a user in a network, method used to detect coordinated users.
 
-Please cite the following work. 
-
 ```
-@misc{luceri2023unmasking,
-      title={Unmasking the Web of Deceit: Uncovering Coordinated Activity to Expose Information Operations on Twitter}, 
-      author={Luca Luceri and Valeria Pantè and Keith Burghardt and Emilio Ferrara},
-      year={2023},
-      eprint={2310.09884},
-      archivePrefix={arXiv},
-      primaryClass={cs.SI}
+@inproceedings{luceri2024unmasking,
+    author={Luca Luceri and Valeria Pantè and Keith Burghardt and Emilio Ferrara},
+    title = {Unmasking the web of deceit: Uncovering coordinated activity to expose information operations on twitter},
+    booktitle = {Proceedings of the 2024 ACM Web Conference},
+    year = {2024}
 }
 ```
 
