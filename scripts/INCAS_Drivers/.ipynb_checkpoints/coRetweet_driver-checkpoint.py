@@ -20,11 +20,9 @@ from coordinatedActivity.INCAS_scripts.coRetweet_v3 import *
 # file_name = "consolidated_INCAS_0908.csv.gz" # Name of the File to be read
 
 # Phase-2 Directory
-OUTPUT_DIR = "/scratch1/ashwinba/cache/INCAS/phase_2/graphs"
-# Declare directories and file_name
-dataset_dir = "/scratch1/ashwinba/consolidated/INCAS/phase_2" # File Location
-graph_dir = "/scratch1/ashwinba/cache/INCAS/phase_2" #Final destination of graph
-file_name = "consolidated_INCAS_EVAL_2.csv.gz" # Name of the File to be read
+dataset_dir = "/scratch1/ashwinba/consolidated/INCAS/phase_2"
+graph_dir = "/scratch1/ashwinba/cache/INCAS/phase_2"
+file_name = "processed_INCAS_TA2.csv.gz"
 
 with gzip.open(os.path.join(dataset_dir,file_name)) as f:
     cum_df = pd.read_csv(f)
@@ -33,7 +31,7 @@ warnings.warn("opened dataframe")
 G = coRetweet(cum_df)
 
 # Saving Graph in GML File
-nx.write_gexf(G,os.path.join(graph_dir,"coRetweet_INCAS_TA2.gexf"))
+nx.write_gexf(G,os.path.join(graph_dir,"coRetweet_INCAS_phase2.gexf"))
 warnings.warn("file written")
 
 

@@ -23,9 +23,8 @@ def generate_NMI(graphs_dir,threshold):
         method_name = os.path.basename(graph).split('_')[0]
         G = nx.read_gexf(graph)
         graphs_dicts[method_name] = G
-        nodes+=list(G.nodes)
         del G
-
+        nodes+=list(G.nodes)
     
     # Unique Set
     nodes = list(set(list(nodes)))
@@ -75,6 +74,7 @@ def generate_NMI(graphs_dir,threshold):
     NMI_df.to_csv(os.path.join(GRAPH_DIR,"NMI_REPORT_{THRESH}.csv".format(THRESH=threshold)))
 
     
+    
     warnings.warn(str(NMI_df.shape))
 
     # Plot NMI Heatmap
@@ -84,11 +84,11 @@ def generate_NMI(graphs_dir,threshold):
     del NMI_df
 
         
-ROOT_DIR = "/scratch1/ashwinba/cache/INCAS/phase_2"
+ROOT_DIR = "/scratch1/ashwinba/cache/INCAS"
 graphs_dir = glob.glob(os.path.join(ROOT_DIR,"*.gexf"))
 warnings.warn(str(graphs_dir))
 
-generate_NMI(graphs_dir=graphs_dir,threshold=90)
+generate_NMI(graphs_dir=graphs_dir,threshold=0.95)
     
 # Iterative
 #threshs = np.arange(0.50,0.98,0.03).tolist()

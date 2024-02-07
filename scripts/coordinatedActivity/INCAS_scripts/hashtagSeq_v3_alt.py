@@ -106,8 +106,7 @@ def get_tweet_timestamp(tid):
 # 2. is_retweet
 # 3. engagement_type
 
-def hashSeq(cum,minHashtags = 3):
-    warnings.warn("Hashtags :"+str(minHashtags))
+def hashSeq(cum,minHashtags = 4):
     warnings.warn(str(cum.columns))
     cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
 
@@ -120,10 +119,9 @@ def hashSeq(cum,minHashtags = 3):
     cum['contentText'] = cum['contentText'].astype(str).apply(lambda x: msg_clean(x))
 
 
-    cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
+    cum['hashtag_seq'] = ['__'.join(sorted([tag.strip("#") for tag in tweet.split() if tag.startswith("#")])) for tweet in cum['contentText'].values.astype(str)]
     cum.drop(['contentText'], axis=1, inplace=True)
     cum = cum[['hashtag_seq','author']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
-    cum.to_csv("hash_grouped.csv")
     print("After Hash")
     print(cum.shape)
     
@@ -172,9 +170,6 @@ def hashSeq(cum,minHashtags = 3):
     
     # Remove loops
     G.remove_edges_from(nx.selfloop_edges(G))
-    
-
-    warnings.warn(str(len(list(G.nodes))))
 
     return G
 

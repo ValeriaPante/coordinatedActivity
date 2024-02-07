@@ -40,8 +40,7 @@ def coURL(cum):
     temp = cum.groupby('urls', as_index=False).count()
     print(temp)
     
-    co_url_thresh = temp['userid'].max()*0.6
-    warnings.warn(str(co_url_thresh))
+    co_url_thresh = temp['userid'].max()*0.4
     print(temp['userid'].max())
     
     cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>co_url_thresh]['urls'].to_list())]
@@ -51,7 +50,6 @@ def coURL(cum):
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
     cum['urls'] = cum['urls'].apply(lambda x: urls[x]).astype(int)
     del urls
-    warnings.warn("initiated urls")
 
     # Changing Datatype to string
     cum['userid'] = cum['userid'].astype(str)
@@ -60,7 +58,6 @@ def coURL(cum):
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
     #print(set(cum['userid'].values))
-    warnings.warn("before categorical")
     
     person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
     thing_c = pd.CategoricalDtype(sorted(cum.urls.unique()), ordered=True)
@@ -83,11 +80,8 @@ def coURL(cum):
     similarities = cosine_similarity(tfidf_matrix, dense_output=False)
 
     print(type(similarities))
-    warnings.warn("similarities_detected")
 
     df_adj = pd.DataFrame(similarities.toarray())
-    
-    warnings.warn("Calculated df adj")
 
     del similarities
     #df_adj.index = list(set(le.inverse_transform(cum['userid'].values)))
@@ -97,8 +91,6 @@ def coURL(cum):
     
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj
-    
-    warnings.warn("constructed adj matrix")
     
     G.remove_nodes_from(list(nx.isolates(G)))
     G.remove_edges_from(nx.selfloop_edges(G))

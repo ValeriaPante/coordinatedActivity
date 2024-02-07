@@ -46,10 +46,12 @@ def coRetweet(cum):
     #cum = cum.rename(index=str,columns={'id':'tweetid'})
 
     filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
-    filt = list(filt.loc[filt['tweetid'] >= 10]['userid'])
+    filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
     print(len(filt))
     cum = cum.loc[cum['userid'].isin(filt)]
     cum = cum[['userid', 'retweet_id']].drop_duplicates()
+    
+    del filt
 
     temp = cum.groupby('retweet_id', as_index=False).count()
     print("Grouped")

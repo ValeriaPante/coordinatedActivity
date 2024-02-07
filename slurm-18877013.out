@@ -1,0 +1,20 @@
+==========================================
+SLURM_JOB_ID = 18877013
+SLURM_JOB_NODELIST = a03-[11-12]
+TMPDIR = /tmp/SLURM_18877013
+==========================================
+(5682815, 19)
+Index(['annotations', 'dataTags', 'embeddedUrls', 'extraAttributes',
+       'imageUrls', 'segments', 'author', 'contentText', 'geolocation', 'id',
+       'language', 'mediaType', 'name', 'timePublished', 'title',
+       'translatedContentText', 'translatedTitle', 'url',
+       'mediaTypeAttributes'],
+      dtype='object')
+  annotations  ...                                mediaTypeAttributes
+0          []  ...  {'redditData': {'author': None, 'authorAwardee...
+1          []  ...  {'redditData': {'author': None, 'authorAwardee...
+2          []  ...  {'redditData': {'author': None, 'authorAwardee...
+3          []  ...  {'redditData': {'author': None, 'authorAwardee...
+4          []  ...  {'redditData': {'author': None, 'authorAwardee...
+
+[5 rows x 19 columns]

@@ -35,7 +35,7 @@ def generate_fused_networks(graphs_root_dir):
     
     
     # Removing Loops
-    fusedGraph = fusedGraph.remove_edges_from(list(nx.selfloop_edges(fusedGraph)))
+    #fusedGraph = fusedGraph.remove_edges_from(list(nx.selfloop_edges(fusedGraph)))
 
     nx.write_gexf(fusedGraph,os.path.join(GRAPH_DIR,"fusedNetwork.gexf"))
 

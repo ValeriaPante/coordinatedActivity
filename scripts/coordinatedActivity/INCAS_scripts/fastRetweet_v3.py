@@ -37,7 +37,7 @@ def get_retweet_userid(retweet_id,cum_df):
 #        'translatedTitle'],
 #       dtype='object'
 
-def fastRetweet(cum1, timeInterval = 20000):
+def fastRetweet(cum1, timeInterval = 60):
     cum1.dropna(subset=['tweetid','retweet_id'],inplace=True)
     cum1.sort_values(by=['timePublished'],inplace=True)
     cum1['tweet_timestamp'] = cum1['tweetid'].apply(lambda x: get_tweet_timestamp(int(x)))
@@ -51,7 +51,7 @@ def fastRetweet(cum1, timeInterval = 20000):
     
   
     cum1['delta'] = (cum1['tweet_timestamp'] - cum1['retweet_timestamp']).dt.seconds
-    values1 = cum1['delta'].values()
+    values1 = cum1['delta'].values
     values1.sort()
     warnings.warn(str(values1[0]))
     warnings.warn(str(cum1.shape))

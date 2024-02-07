@@ -39,9 +39,9 @@ import warnings
 
 def get_tweet_timestamp(tid):
     try:
-        offset = 1288834974657
-        tstamp = (tid >> 22) + offset
-        utcdttime = datetime.utcfromtimestamp(tstamp/1000)
+        # offset = 1288834974657
+        # tstamp = (tid >> 22) + offset
+        utcdttime = datetime.utcfromtimestamp(tid/1000)
         return utcdttime
     except:
         return None  
@@ -169,7 +169,6 @@ def create_sim_score_df(lims,D,I,search_query1):
 # Mandatory Fields
 # 1. tweet_text
 
-
 def textSim(cum,outputDir):
     global combined_tweets_df
 
@@ -184,8 +183,10 @@ def textSim(cum,outputDir):
     cum.rename(columns={'engagementType':'tweet_type','contentText':'tweet_text'},inplace=True)
 
     # Adding Timestamp
-    cum['tweet_time'] = cum['tweetid'].apply(lambda x: get_tweet_timestamp(x))
-
+    #cum['tweet_time'] = cum['tweetid'].apply(lambda x: get_tweet_timestamp(x))
+    cum['tweet_time'] = cum['timePublished'].apply(lambda x:get_tweet_timestamp(x))
+    warnings.warn("calculated tweet_time")
+    
     # Preprocess tweet texts
     cum_all = preprocess_text(cum)
     cum_all['tweet_text'] = cum['tweet_text'].replace(',','')
@@ -200,8 +201,6 @@ def textSim(cum,outputDir):
     finalDate = cum_all['tweet_time'].max().date()
     
     i = 1
-
-
     while date <= finalDate:
         cum_all1 = cum_all.loc[(cum_all['tweet_time'].dt.date >=date)&(cum_all['tweet_time'].dt.date < date + timedelta(days=1))]
         actual_user = cum_all.userid.unique()
@@ -248,14 +247,16 @@ def textSim(cum,outputDir):
     
         lims, D, I = index1.range_search(x=search_query1, thresh=init_threshold)
         print('Retrieved results of index search')
+        warnings.warn('Retrieved results of index search')
     
         sim_score_df = create_sim_score_df(lims,D,I,search_query1)
         print('Generated Similarity Score DataFrame')
+        warnings.warn('Generated Similarity Score DataFrame')
     
         del combined_tweets_df
-    
-        for threshold in np.arange(0.7,1.01,0.05):
-    
+        
+        # for threshold in np.arange(0.7,1.01,0.05):
+        for threshold in [0.95]:    
             print("Threshold: ", threshold)
     
             sim_score_temp_df = sim_score_df[sim_score_df.sim_score >= threshold]
@@ -266,10 +267,9 @@ def textSim(cum,outputDir):
             outputfile = outputDir + '/threshold_' + str(threshold) + '_'+str(i)+'.csv'
             text_sim_network.to_csv(outputfile)
 
-        
         date = date+timedelta(days=1)
         i += 1
-        
+        warnings.warn(str(i))
 
 
 # to run after the textSim function
@@ -326,7 +326,7 @@ def getSimilarityNetwork(inputDir):
                 temp = pd.read_csv(os.path.join(inputDir,o))
                 temp['weight'] = thr
                 combined = pd.concat([combined, temp],ignore_index=True)
-                
+
     combined['source_user'] = combined['source_user'].apply(lambda x: str(x).strip())
     combined['target_user'] = combined['target_user'].apply(lambda x: str(x).strip())
     
