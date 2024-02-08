@@ -17,14 +17,13 @@ This repository holds the implementation of state-of-the-art detection methods f
 
 Please cite the following work.
 
+
 ```
-@misc{luceri2023unmasking,
-      title={Unmasking the Web of Deceit: Uncovering Coordinated Activity to Expose Information Operations on Twitter},
-      author={Luca Luceri and Valeria Pantè and Keith Burghardt and Emilio Ferrara},
-      year={2023},
-      eprint={2310.09884},
-      archivePrefix={arXiv},
-      primaryClass={cs.SI}
+@inproceedings{luceri2024unmasking,
+    author={Luca Luceri and Valeria Pantè and Keith Burghardt and Emilio Ferrara},
+    title = {Unmasking the web of deceit: Uncovering coordinated activity to expose information operations on twitter},
+    booktitle = {Proceedings of the 2024 ACM Web Conference},
+    year = {2024}
 }
 ```
 
