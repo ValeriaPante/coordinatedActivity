@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 import networkx as nx
 
@@ -40,11 +41,9 @@ def coURL(cum):
     temp = cum.groupby('urls', as_index=False).count()
     print(temp)
     
-    co_url_thresh = temp['userid'].max()*0.6
-    warnings.warn(str(co_url_thresh))
-    print(temp['userid'].max())
-    
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>co_url_thresh]['urls'].to_list())]
+    # co_url_thresh = temp['userid'].max()*0.6
+
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>2]['urls'].to_list())]
     #cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>600]['urls'].to_list())]
 
     cum['value'] = 1
@@ -59,7 +58,6 @@ def coURL(cum):
     userid = dict(zip(list(cum.userid.astype(str).unique()), list(range(cum.userid.unique().shape[0]))))
     cum['userid'] = cum['userid'].astype(str).apply(lambda x: userid[x]).astype(int)
     
-    #print(set(cum['userid'].values))
     warnings.warn("before categorical")
     
     person_c = pd.CategoricalDtype(sorted(cum.userid.unique()), ordered=True)
@@ -67,9 +65,11 @@ def coURL(cum):
     
     row = cum.userid.astype(person_c).cat.codes
     col = cum.urls.astype(thing_c).cat.codes
-    #print(row)
-    #print(col)
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
+    
+    
+    warnings.warn("written temp file")
+    
     del row, col, person_c, thing_c
 
     warnings.warn("calculated sparse matrix")
@@ -84,6 +84,10 @@ def coURL(cum):
 
     print(type(similarities))
     warnings.warn("similarities_detected")
+
+    with open("temp_file.npy","w+") as f:
+        np.save(f,similarities.toarray())
+
 
     df_adj = pd.DataFrame(similarities.toarray())
     
