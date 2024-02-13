@@ -8,15 +8,15 @@ Rather than being orchestrated by a solitary individual, influence campaigns ten
 There is an extended body of research that focuses on the detection of users belonging to influence campaigns.
 
 This repository holds the implementation of state-of-the-art detection methods focused on building similarity networks of users based on different suspicious behavioural traces:
-- Fast Retweet (Pacheco et al., 2020)
-- Co-Retweet (Pacheco et al., 2021)
-- Co-URL (Gabriel  et al., 2023)
-- Hashtag Sequence (Pacheco et al., 2021)
-- Text Similarity (Pacheco et al., 2020)
+- Fast Retweet
+- Co-Retweet
+- Co-URL
+- Hashtag Sequence
+- Text Similarity
 
 Additionally, you can find a Co-sharing implementation which generalizes the five methods and can potentially work for any kind of feature that a user can share.
 
-The state-of-art methods were used all together to have a comprehensive overview of users similarity across multiple features. To do this, the utils script provides a function that allows to merge multiple similarity networks. In this script, you can also find the function for the computation of the centrality of a user in a network, method used to detect coordinated users.
+The state-of-art methods were used all together to have a comprehensive overview of users similarity across multiple features. To do this, the utils script provides a function that allows to merge multiple similarity networks. In the same script, you can also find the function for the computation of centrality properties in a given network - needed in our method to identify coordinated users.
 
 ```
 @inproceedings{luceri2024unmasking,
@@ -27,4 +27,4 @@ The state-of-art methods were used all together to have a comprehensive overview
 }
 ```
 
-[Here](https://arxiv.org/abs/2310.09884) you can find the relative publication.
+[Here](https://arxiv.org/abs/2310.09884) you can find the pre-print of our paper.
