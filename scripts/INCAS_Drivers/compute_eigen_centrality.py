@@ -26,7 +26,6 @@ def compute_eigen(graph_dir,method):
         warnings.warn("Network File {METHOD} does not exists".format(METHOD=method))
         return
 
-
 def plot_cdf_curve(values,method):
     sns.set(font_scale=1.5, rc={'axes.facecolor':'white', 'figure.facecolor':'white'})
     sns.set_style("whitegrid")
@@ -36,10 +35,18 @@ def plot_cdf_curve(values,method):
     users_count = len(list(filter(lambda x:x>=percentile,values)))
     plt.axvline(x = percentile, color = 'r', linestyle='-',linewidth=2,label="90th pct. : " + str(users_count) + " users")
     warnings.warn("90th percentile : " + str(percentile))
-    percentile = np.percentile(values,95)
+    percentile = np.percentile(values,85)
     warnings.warn("95th perentile : " + str(percentile))
     users_count = len(list(filter(lambda x:x>=percentile,values)))
-    plt.axvline(x = percentile, color = 'g', linestyle='-',linewidth=2,label='95th pct. : ' + str(users_count) + " users")
+    plt.axvline(x = percentile, color = 'g', linestyle='-',linewidth=2,label='85th pct. : ' + str(users_count) + " users")
+    percentile = np.percentile(values,97)
+    warnings.warn("97th perentile : " + str(percentile))
+    users_count = len(list(filter(lambda x:x>=percentile,values)))
+    plt.axvline(x = percentile, color = 'y', linestyle='-',linewidth=2,label='97th pct. : ' + str(users_count) + " users")
+    percentile = np.percentile(values,99.999)
+    warnings.warn("97th perentile : " + str(percentile))
+    users_count = len(list(filter(lambda x:x>=percentile,values)))
+    plt.axvline(x = percentile, color = 'black', linestyle='-',linewidth=2,label='99.999th pct. : ' + str(users_count) + " users")
     plt.ylabel("density")
     plt.xlabel("eigen-centrality")
     plt.title(method)
@@ -64,9 +71,12 @@ def plot_pdf_curve(values,method):
 
 graph_root_dir = "/scratch1/ashwinba/cache/INCAS/phase_2"
 #graphs = {"coRetweet":"coRetweet_INCAS.gexf","textsimilarity":"textsim_INCAS.gexf","fastretweet":"fastretweet_INCAS.gexf","hashSeq":"hashSeq_INCAS.gexf","fusednetwork":"fusedNetwork.gexf"}
-# graphs = {"coRetweet":"coRetweet_INCAS_TA2.gexf"}
-graphs = {"textsim":"textsim_INCAS_T2_V1.gexf"}
+#graphs = {"coRetweet":"coRetweet_INCAS_TA2.gexf"}
+#graphs = {"textsim":"textsim_INCAS_T2.gexf"}
 
+#graphs = {"hashseq_min_3":"hashSeq_INCAS_TA2_min_hashtags_3.gexf"}
+graphs = {"coURL_min_2":"coURL_INCAS_TA2_1.gexf","coURL_min_3":"coURL_INCAS_TA2_1_min_3.gexf"}
+#graphs = {"textSim":"textsim_INCAS_T2_V1.gexf"}
 for method,graph_dir in graphs.items():
     compute_eigen(os.path.join(graph_root_dir,graph_dir),method)
     

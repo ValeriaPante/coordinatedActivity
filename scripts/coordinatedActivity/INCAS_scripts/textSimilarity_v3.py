@@ -74,6 +74,11 @@ def preprocess_text(df):
     df['tweet_text']=df['tweet_text'].str.replace( "''",'')
     # Lowercase
     df['tweet_text']=df['tweet_text'].str.lower()
+    
+    
+    warnings.warn(str(df.columns))
+    
+    df = df[df['tweet_type'] != 'retweet']
 
     return df
 
@@ -178,6 +183,8 @@ def textSim(cum,outputDir):
         
     os.mkdir(outputDir)
 
+    warnings.warn(str(cum.columns))
+    #cum = cum[cum['engagementType'] != 'retweet']
 
     # Changing colummns
     cum.rename(columns={'engagementType':'tweet_type','contentText':'tweet_text'},inplace=True)

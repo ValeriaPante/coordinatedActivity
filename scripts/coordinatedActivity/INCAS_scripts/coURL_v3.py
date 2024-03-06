@@ -21,7 +21,6 @@ import warnings
 
 def coURL(cum):
 
-    cum.dropna(inplace=True)
     warnings.warn("came in")
     
     # Renaming columns if necessary
@@ -41,10 +40,8 @@ def coURL(cum):
     temp = cum.groupby('urls', as_index=False).count()
     print(temp)
     
-    # co_url_thresh = temp['userid'].max()*0.6
 
     cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>2]['urls'].to_list())]
-    #cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>600]['urls'].to_list())]
 
     cum['value'] = 1
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
@@ -67,7 +64,7 @@ def coURL(cum):
     col = cum.urls.astype(thing_c).cat.codes
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
     
-    
+ 
     warnings.warn("written temp file")
     
     del row, col, person_c, thing_c
@@ -81,13 +78,9 @@ def coURL(cum):
     vectorizer = TfidfTransformer()
     tfidf_matrix = vectorizer.fit_transform(sparse_matrix)
     similarities = cosine_similarity(tfidf_matrix, dense_output=False)
-
+    
     print(type(similarities))
     warnings.warn("similarities_detected")
-
-    with open("temp_file.npy","w+") as f:
-        np.save(f,similarities.toarray())
-
 
     df_adj = pd.DataFrame(similarities.toarray())
     

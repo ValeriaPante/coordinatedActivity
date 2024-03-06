@@ -30,6 +30,22 @@ def find_retweet(user_dict):
         return user_dict['engagementParentId']
     return np.nan
 
+def filter_media(record):
+    if('twitterData' in record['mediaTypeAttributes'].keys()):
+        return True
+    return False
+    
+def update_vals(record):
+    columns = ['twitterAuthorScreenname','tweetId','engagementParentId','engagementType']
+    
+    filtered_columns = list(filter(lambda x:x not in record['twitterData'].keys(),columns))
+
+    for column in filtered_columns:
+        record['twitterData'][column]  = np.NaN
+        
+    return record
+
+    
 def GenerateDatasets(fileDirs):
     # Root Directory
     file_root_dir = "/scratch1/ashwinba/consolidated/INCAS/phase_2"
@@ -41,11 +57,21 @@ def GenerateDatasets(fileDirs):
         # df = pd.read_json(path_or_buf=os.path.join(root_dir,fileDir), lines=True)
         df = pd.read_json(path_or_buf=fileDir, lines=True,compression='gzip')
         warnings.warn("done with reading the dataframe")
+        print(df.columns)
+        df.dropna(subset=['mediaTypeAttributes'],inplace=True)
+        print(df['mediaTypeAttributes'].values)
         
-        df['author'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterData']['twitterAuthorScreenname'])
-        df['tweetid'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterData']['tweetId'])
-        df['retweet_id'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterData']['engagementParentId'])
-        df['engagementType'] = df['mediaTypeAttributes'].apply(lambda x:dict(x)['twitterData']['engagementType'])
+        
+        # Filtering records where key exists
+        df['mediaTypeAttributes'] = df['mediaTypeAttributes'].apply(lambda x:dict(x))
+        df = df[df.apply(filter_media,axis=1)]
+        df['mediaTypeAttributes'] = df['mediaTypeAttributes'].apply(lambda x:update_vals(x))
+        
+        # Extracting the features
+        df['author'] = df['mediaTypeAttributes'].apply(lambda x:x['twitterData']['twitterAuthorScreenname'])
+        df['tweetid'] = df['mediaTypeAttributes'].apply(lambda x:x['twitterData']['tweetId'])
+        df['retweet_id'] = df['mediaTypeAttributes'].apply(lambda x:x['twitterData']['engagementParentId'])
+        df['engagementType'] = df['mediaTypeAttributes'].apply(lambda x:x['twitterData']['engagementType'])
             
         warnings.warn("done with stage-1")
         
@@ -84,4 +110,4 @@ def GenerateDatasets(fileDirs):
 # files_dirs = os.listdir(root_dir)
 # print("files_dirs)
 
-GenerateDatasets(["/scratch1/ashwinba/consolidated/INCAS/phase_2/TA2_eval_set_2024-01-27.jsonl.gz"])
+GenerateDatasets(["/scratch1/ashwinba/consolidated/INCAS/phase_2/TA2_small_eval_set_2024-02-16.jsonl.gz"])

@@ -24,8 +24,8 @@ with gzip.open(os.path.join(dataset_dir,file_name)) as f:
     cum_df = pd.read_csv(f)
 
 warnings.warn("opened dataframe")
-
-#textSim(cum_df,OUTPUT_DIR)
+print(cum_df.columns)
+textSim(cum_df,OUTPUT_DIR)
 g = getSimilarityNetwork(OUTPUT_DIR)
 warnings.warn("Similarity Network Recieved")
 

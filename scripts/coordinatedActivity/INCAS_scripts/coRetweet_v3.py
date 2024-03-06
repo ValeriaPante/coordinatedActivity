@@ -36,18 +36,13 @@ def coRetweet(cum):
     cum.rename({"retweet_tweetid":"retweet_id"},axis=1,inplace=True)
 
     warnings.warn("came in")
-    
-    # Dropping NaN Records
-    print(cum.shape)
-    print(cum.columns)
-    
+
     cum.dropna(subset=['retweet_id'],inplace=True)
     
     #cum = cum.rename(index=str,columns={'id':'tweetid'})
 
     filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
     filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
-    print(len(filt))
     cum = cum.loc[cum['userid'].isin(filt)]
     cum = cum[['userid', 'retweet_id']].drop_duplicates()
     

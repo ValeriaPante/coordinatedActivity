@@ -106,13 +106,13 @@ def get_tweet_timestamp(tid):
 # 2. is_retweet
 # 3. engagement_type
 
-def hashSeq(cum,minHashtags = 3):
+def hashSeq(cum,minHashtags = 2):
     warnings.warn("Hashtags :"+str(minHashtags))
     warnings.warn(str(cum.columns))
     cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
 
     if("is_retweet" in cum.columns):
-        cum = cum.loc[cum['is_retweet'] == "TRUE"]
+        cum = cum.loc[cum['is_retweet'] != "TRUE"]
     else:
         cum = cum.loc[cum['engagementType'] != 'retweet']
     
@@ -125,15 +125,11 @@ def hashSeq(cum,minHashtags = 3):
     cum = cum[['hashtag_seq','author']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
     cum.to_csv("hash_grouped.csv")
     print("After Hash")
-    print(cum.shape)
-    
-    #cum.drop_duplicates(inplace=True)
-    
+
+
     temp = cum.groupby('hashtag_seq', as_index=False).count()
     cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['author']>1]['hashtag_seq'].to_list())]
     
-    print(cum.shape)
-
     cum['value'] = 1
     
     hashs = dict(zip(list(cum.hashtag_seq.unique()), list(range(cum.hashtag_seq.unique().shape[0]))))
@@ -146,9 +142,7 @@ def hashSeq(cum,minHashtags = 3):
     
     person_c = pd.CategoricalDtype(sorted(cum.author.unique()), ordered=True)
     thing_c = pd.CategoricalDtype(sorted(cum.hashtag_seq.unique()), ordered=True)
-    
-    print(cum.columns)
-    
+
     row = cum.author.astype(person_c).cat.codes
     col = cum.hashtag_seq.astype(thing_c).cat.codes
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))

@@ -32,7 +32,7 @@ warnings.warn("opened dataframe")
 G = hashSeq(cum_df)
 
 # Saving Graph in GML File
-nx.write_gexf(G,os.path.join(graph_dir,"hashSeq_INCAS_TA2.gexf"))
+nx.write_gexf(G,os.path.join(graph_dir,"hashSeq_INCAS_TA2_minhash_2.gexf"))
 warnings.warn("file written")
 
 
