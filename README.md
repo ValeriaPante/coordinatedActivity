@@ -16,7 +16,7 @@ This repository holds the implementation of state-of-the-art detection methods f
 
 Additionally, you can find a Co-sharing implementation which generalizes the five methods and can potentially work for any kind of feature that a user can share.
 
-The state-of-art methods were used all together to have a comprehensive overview of users similarity across multiple features. To do this, the utils script provides a function that allows to merge multiple similarity networks. In the same script, you can also find the function for the computation of centrality properties in a given network - needed in our method to identify coordinated users.
+The state-of-art methods were used all together to have a comprehensive overview of users similarity across multiple features. To do this, the utils script provides a function that allows to merge multiple similarity networks. In the same script, you can also find the function for the computation of centrality properties in a given network - needed in our method to identify coordinated users. Finally, you can find two functions to compute node embeddings and train a classifier on them.
 
 ```
 @inproceedings{luceri2024unmasking,
