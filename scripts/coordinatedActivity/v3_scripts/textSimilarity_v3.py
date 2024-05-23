@@ -159,41 +159,6 @@ def msg_clean(msg):
 
     return msg
 
-def create_sim_score_df(lims,D,I,search_query1):
-    source_idx = []
-    target_idx = []
-    sim_score = []
-
-    for i in range(len(search_query1)):
-        idx = I[lims[i]:lims[i+1]]
-        sim = D[lims[i]:lims[i+1]]
-        for j in range(len(idx)):
-            source_idx.append(i)
-            target_idx.append(idx[j])
-            sim_score.append(sim[j])
-
-    sim_score_df = pd.DataFrame(list(zip(source_idx, target_idx, sim_score)), columns=['source_idx', 'target_idx', 'sim_score'])
-    del source_idx
-    del target_idx
-    del sim_score
-    sim_score_df = sim_score_df.query("source_idx != target_idx")
-    sim_score_df['combined_idx'] = sim_score_df[['source_idx', 'target_idx']].apply(tuple, axis=1)
-    sim_score_df['combined_idx'] = sim_score_df['combined_idx'].apply(sorted)
-    sim_score_df['combined_idx'] = sim_score_df['combined_idx'].transform(lambda k: tuple(k))
-    sim_score_df = sim_score_df.drop_duplicates(subset=['combined_idx'], keep='first')
-    sim_score_df.reset_index(inplace=True)
-    sim_score_df = sim_score_df.loc[:, ~sim_score_df.columns.str.contains('index')]
-    sim_score_df.drop(['combined_idx'], inplace = True, axis=1)
-
-    df_join = pd.merge(pd.merge(sim_score_df,combined_tweets_df, left_on='source_idx', right_on='my_idx', how='inner'),combined_tweets_df,left_on='target_idx',right_on='my_idx',how='inner')
-
-    result = df_join[['userid_x','userid_y','clean_tweet_x','clean_tweet_y','sim_score']]
-    result = result.rename(columns = {'userid_x':'source_user',
-                                     'userid_y':'target_user',
-                                     'clean_tweet_x':'source_text',
-                                     'clean_tweet_y':'target_text'})
-    return result
-
 # MAIN FUNCTION
 # Data assumptions:
 #   - datasetsPaths: list containing the absolute paths referring to the datasets to analyze (no distiction between control and information operations ones)
@@ -201,6 +166,43 @@ def create_sim_score_df(lims,D,I,search_query1):
 # To solve computational issues, the function will create multiple output files of users sharing similar texts that will need to then be merged into a network using the getSimilarityNetwork function (see below)
 
 def textSim(datasetsPaths, outputDir):
+    
+    
+    def create_sim_score_df(lims,D,I,search_query1):
+        source_idx = []
+        target_idx = []
+        sim_score = []
+    
+        for i in range(len(search_query1)):
+            idx = I[lims[i]:lims[i+1]]
+            sim = D[lims[i]:lims[i+1]]
+            for j in range(len(idx)):
+                source_idx.append(i)
+                target_idx.append(idx[j])
+                sim_score.append(sim[j])
+    
+        sim_score_df = pd.DataFrame(list(zip(source_idx, target_idx, sim_score)), columns=['source_idx', 'target_idx', 'sim_score'])
+        del source_idx
+        del target_idx
+        del sim_score
+        sim_score_df = sim_score_df.query("source_idx != target_idx")
+        sim_score_df['combined_idx'] = sim_score_df[['source_idx', 'target_idx']].apply(tuple, axis=1)
+        sim_score_df['combined_idx'] = sim_score_df['combined_idx'].apply(sorted)
+        sim_score_df['combined_idx'] = sim_score_df['combined_idx'].transform(lambda k: tuple(k))
+        sim_score_df = sim_score_df.drop_duplicates(subset=['combined_idx'], keep='first')
+        sim_score_df.reset_index(inplace=True)
+        sim_score_df = sim_score_df.loc[:, ~sim_score_df.columns.str.contains('index')]
+        sim_score_df.drop(['combined_idx'], inplace = True, axis=1)
+    
+        df_join = pd.merge(pd.merge(sim_score_df,combined_tweets_df, left_on='source_idx', right_on='my_idx', how='inner'),combined_tweets_df,left_on='target_idx',right_on='my_idx',how='inner')
+    
+        result = df_join[['userid_x','userid_y','clean_tweet_x','clean_tweet_y','sim_score']]
+        result = result.rename(columns = {'userid_x':'source_user',
+                                         'userid_y':'target_user',
+                                         'clean_tweet_x':'source_text',
+                                         'clean_tweet_y':'target_text'})
+        return result
+    
     for file in datasetsPaths:
         if 'control' in file:
             if file[-2:] == 'gz':

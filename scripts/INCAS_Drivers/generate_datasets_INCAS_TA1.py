@@ -7,16 +7,9 @@ import warnings
 
 le = LabelEncoder()
 
-
 def find_author(user_dict):
     if('twitterAuthorScreenname' in list(user_dict.keys())):
         return user_dict['twitterAuthorScreenname']
-    return np.nan
-
-def find_tweetId(user_dict):
-    if('tweetId' in list(user_dict.keys())):
-        return user_dict['tweetId']
-    print(user_dict)
     return np.nan
 
 def find_author_name(title):
@@ -45,22 +38,20 @@ def update_vals(record):
         
     return record
 
-    
 def GenerateDatasets(fileDirs):
     # Root Directory
-    file_root_dir = "/scratch1/ashwinba/consolidated/INCAS/phase_2"
+    file_root_dir = "/project/muric_789/ashwin/INCAS/processed_data"
 
     finalDataFrame = pd.DataFrame()
 
     for fileDir in fileDirs:
         warnings.warn("came inside loop")
         # df = pd.read_json(path_or_buf=os.path.join(root_dir,fileDir), lines=True)
-        df = pd.read_json(path_or_buf=fileDir, lines=True,compression='gzip')
-        warnings.warn("done with reading the dataframe")
-        print(df.columns)
-        df.dropna(subset=['mediaTypeAttributes'],inplace=True)
-        print(df['mediaTypeAttributes'].values)
+        df = pd.read_json(path_or_buf=fileDir, lines=True)
+        df = df[df['mediaType'] == 'Twitter']       
         
+        warnings.warn("done with reading the dataframe")
+        df.dropna(subset=['mediaTypeAttributes'],inplace=True)
         
         # Filtering records where key exists
         df['mediaTypeAttributes'] = df['mediaTypeAttributes'].apply(lambda x:dict(x))
@@ -72,21 +63,19 @@ def GenerateDatasets(fileDirs):
         df['tweetid'] = df['mediaTypeAttributes'].apply(lambda x:x['twitterData']['tweetId'])
         df['retweet_id'] = df['mediaTypeAttributes'].apply(lambda x:x['twitterData']['engagementParentId'])
         df['engagementType'] = df['mediaTypeAttributes'].apply(lambda x:x['twitterData']['engagementType'])
+        
+        df["content_urls"] = df['contentText'].apply(lambda x: re.findall(r'(https?://\S+)', x))
             
         warnings.warn("done with stage-1")
-        
-        print(df['engagementType'].value_counts())
-    
+
         # Dropping empty user ids          
         df.dropna(subset=['author'],inplace=True)
     
         # Removing unecessary columns
         df.drop(['translatedTitle','translatedContentText','geolocation'],inplace=True,axis=1)
 
-        #finalDataFrame = finalDataFrame._append(df,ignore_index=True)
-        #finalDataFrame = pd.concat([finalDataFrame,df], ignore_index=True)
         finalDataFrame = df.copy()
-        print(finalDataFrame.shape)
+        warnings.warn(str(finalDataFrame.shape))
         
         del df
 
@@ -101,13 +90,12 @@ def GenerateDatasets(fileDirs):
     # Sorting cum based on timePublished
     finalDataFrame.sort_values(by=['timePublished'], inplace=True)
 
-    print(finalDataFrame.columns)
     warnings.warn("File Consolidated")
     finalDataFrame.to_csv(os.path.join(
-        file_root_dir, "consolidated_INCAS_EVAL_2.csv.gz"),index=False)
+        file_root_dir, "consolidated_INCAS_NEW_EVAL_2.csv.gz"),index=False)
 
 # root_dir = "/scratch1/ashwinba/INCAS/sample_0908"
 # files_dirs = os.listdir(root_dir)
 # print("files_dirs)
 
-GenerateDatasets(["/scratch1/ashwinba/consolidated/INCAS/phase_2/TA2_small_eval_set_2024-02-16.jsonl.gz"])
+GenerateDatasets(["/project/ll_774_951/INCASdata/PHASE_2/sampled_20240226.jsonl"])

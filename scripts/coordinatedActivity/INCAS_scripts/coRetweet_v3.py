@@ -53,7 +53,8 @@ def coRetweet(cum):
     print(len(cum['retweet_id'].unique()))
     print(cum.groupby('retweet_id')['retweet_id'].count())
     print(cum.groupby(cum['retweet_id']).filter(lambda x: len(x) > 1).value_counts())
-    cum = cum.loc[cum['retweet_id'].isin(temp.loc[temp['userid']>1]['retweet_id'].to_list())]
+    # cum = cum.loc[cum['retweet_id'].isin(temp.loc[temp['userid']>1]['retweet_id'].to_list())]
+    cum = cum.loc[cum['retweet_id'].isin(temp.loc[temp['userid']>=10]['retweet_id'].to_list())]
 
     cum['value'] = 1
     

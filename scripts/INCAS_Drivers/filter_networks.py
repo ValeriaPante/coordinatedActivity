@@ -232,22 +232,26 @@ def retrieve_users(graphs_dir,thresholds,ref_df):
             
             # Generate_JSONs
             generate_segments({'1':coordinated_users,'0':non_coordinated_users},method_name,threshold,ref_df)
-            generate_messages({'1':coordinated_users,'0':non_coordinated_users},method_name,threshold,ref_df)
+            #generate_messages({'1':coordinated_users,'0':non_coordinated_users},method_name,threshold,ref_df)
             
             # Test warning
             warnings.warn("Completed for {METHOD} - {THRESH}".format(METHOD=method_name,THRESH=str(threshold)))
             
-ROOT_DIR = "/scratch1/ashwinba/cache/INCAS/phase_2"
+ROOT_DIR = "/scratch1/ashwinba/cache/INCAS/phase_2/fused_network"
 # ROOT_DIR = "/scratch1/ashwinba/cache/INCAS/old_networks"
 graphs_dir = glob.glob(os.path.join(ROOT_DIR,"*.gexf"))
 #graphs_dir = [os.path.join(ROOT_DIR,"hashSeq_INCAS_TA2_min_hashtags_3.gexf")]
 #graphs_dir = [os.path.join(ROOT_DIR,"coURL_INCAS_TA2_1_V1.gexf")]
-graphs_dir = ["/scratch1/ashwinba/cache/INCAS/phase_2/hashSeq_INCAS_TA2_minhash_2.gexf"]
+#graphs_dir = ["/scratch1/ashwinba/cache/INCAS/phase_2/hashSeq_INCAS_TA2_minhash_2.gexf"]
 #graphs_dir = [os.path.join(ROOT_DIR,"coRetweet_INCAS.gexf")]
 warnings.warn(str(graphs_dir))
-#filter_graphs(graphs_dir=graphs_dir,threshold=90)
+
+# thresholds = [i for i in range(50,100,2)]
+# for thresh in thresholds:
+#     filter_graphs(graphs_dir=graphs_dir,threshold=thresh)
+
 #retrieve_users(graphs_dir,thresholds=[85],ref_df=ref_df)
 #retrieve_users(graphs_dir,thresholds = [90],ref_df=ref_df)
-retrieve_users(graphs_dir,thresholds = [60,50],ref_df=ref_df)
+retrieve_users(graphs_dir,thresholds = [95,98],ref_df=ref_df)
 
 

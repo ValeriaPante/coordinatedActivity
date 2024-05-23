@@ -31,22 +31,28 @@ def plot_cdf_curve(values,method):
     sns.set_style("whitegrid")
     plt.figure()
     sns.kdeplot(data = values, cumulative = True,linewidth=5)
+    percentile = np.percentile(values,95)
+    users_count = len(list(filter(lambda x:x>=percentile,values)))
+    plt.axvline(x = percentile, color = 'r', linestyle='-',linewidth=4,label="95th pct. : " + str(users_count) + " users")
     percentile = np.percentile(values,90)
     users_count = len(list(filter(lambda x:x>=percentile,values)))
-    plt.axvline(x = percentile, color = 'r', linestyle='-',linewidth=2,label="90th pct. : " + str(users_count) + " users")
-    warnings.warn("90th percentile : " + str(percentile))
-    percentile = np.percentile(values,85)
-    warnings.warn("95th perentile : " + str(percentile))
+    plt.axvline(x = percentile, color = 'g', linestyle='-',linewidth=2,label='90th pct. : ' + str(users_count) + " users")
+    percentile = np.percentile(values,80)
     users_count = len(list(filter(lambda x:x>=percentile,values)))
-    plt.axvline(x = percentile, color = 'g', linestyle='-',linewidth=2,label='85th pct. : ' + str(users_count) + " users")
-    percentile = np.percentile(values,97)
-    warnings.warn("97th perentile : " + str(percentile))
+    plt.axvline(x = percentile, color = 'y', linestyle='-',linewidth=5,label='80th pct. : ' + str(users_count) + " users")
+    percentile = np.percentile(values,70)
+    warnings.warn("70th perentile : " + str(percentile))
     users_count = len(list(filter(lambda x:x>=percentile,values)))
-    plt.axvline(x = percentile, color = 'y', linestyle='-',linewidth=2,label='97th pct. : ' + str(users_count) + " users")
-    percentile = np.percentile(values,99.999)
-    warnings.warn("97th perentile : " + str(percentile))
+    plt.axvline(x = percentile, color = 'black', linestyle='-',linewidth=2,label='70th pct. : ' + str(users_count) + " users")
+    percentile = np.percentile(values,98)
     users_count = len(list(filter(lambda x:x>=percentile,values)))
-    plt.axvline(x = percentile, color = 'black', linestyle='-',linewidth=2,label='99.999th pct. : ' + str(users_count) + " users")
+    plt.axvline(x = percentile, color = 'blue', linestyle='-',linewidth=2,label='98th pct. : ' + str(users_count) + " users")
+    percentile = np.percentile(values,99)
+    users_count = len(list(filter(lambda x:x>=percentile,values)))
+    plt.axvline(x = percentile, color = 'red', linestyle='-',linewidth=2,label='99th pct. : ' + str(users_count) + " users")
+    percentile = np.percentile(values,99.5)
+    users_count = len(list(filter(lambda x:x>=percentile,values)))
+    plt.axvline(x = percentile, color = 'red', linestyle='-',linewidth=2,label='99.5th pct. : ' + str(users_count) + " users")
     plt.ylabel("density")
     plt.xlabel("eigen-centrality")
     plt.title(method)
@@ -75,8 +81,9 @@ graph_root_dir = "/scratch1/ashwinba/cache/INCAS/phase_2"
 #graphs = {"textsim":"textsim_INCAS_T2.gexf"}
 
 #graphs = {"hashseq_min_3":"hashSeq_INCAS_TA2_min_hashtags_3.gexf"}
-graphs = {"coURL_min_2":"coURL_INCAS_TA2_1.gexf","coURL_min_3":"coURL_INCAS_TA2_1_min_3.gexf"}
+# graphs = {"coURL_min_2":"coURL_INCAS_TA2_1.gexf","coURL_min_3":"coURL_INCAS_TA2_1_min_3.gexf"}
 #graphs = {"textSim":"textsim_INCAS_T2_V1.gexf"}
+graphs = {"fusedNetwork":"fused_network/fused_removed_network.gexf"}
 for method,graph_dir in graphs.items():
     compute_eigen(os.path.join(graph_root_dir,graph_dir),method)
     

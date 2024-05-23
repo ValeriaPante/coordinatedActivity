@@ -109,23 +109,22 @@ def get_tweet_timestamp(tid):
 def hashSeq(cum,minHashtags = 2):
     warnings.warn("Hashtags :"+str(minHashtags))
     warnings.warn(str(cum.columns))
+    
     cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
 
     if("is_retweet" in cum.columns):
         cum = cum.loc[cum['is_retweet'] != "TRUE"]
+        cum = cum.loc[cum['is_retweet'] != True]
     else:
         cum = cum.loc[cum['engagementType'] != 'retweet']
     
     cum = preprocess_text(cum)
     cum['contentText'] = cum['contentText'].astype(str).apply(lambda x: msg_clean(x))
 
-
     cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
     cum.drop(['contentText'], axis=1, inplace=True)
     cum = cum[['hashtag_seq','author']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
     cum.to_csv("hash_grouped.csv")
-    print("After Hash")
-
 
     temp = cum.groupby('hashtag_seq', as_index=False).count()
     cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['author']>1]['hashtag_seq'].to_list())]
@@ -154,10 +153,10 @@ def hashSeq(cum,minHashtags = 2):
 
     df_adj = pd.DataFrame(similarities.toarray())
     del similarities
-    #df_adj.index = userid.values
+
     df_adj.index = userid.keys()
     df_adj.columns = userid.keys()
-    #df_adj.columns = userid.values
+
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj
     
@@ -167,10 +166,6 @@ def hashSeq(cum,minHashtags = 2):
     # Remove loops
     G.remove_edges_from(nx.selfloop_edges(G))
     
-
     warnings.warn(str(len(list(G.nodes))))
 
     return G
-
-
-

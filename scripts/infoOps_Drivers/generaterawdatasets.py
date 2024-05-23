@@ -103,10 +103,10 @@ def GenerateDatasets(datasetsPaths):
                     treated = pd.concat([treated, get_positive_data(pd.read_csv(file),country)])
                 except:
                     treated = get_positive_data(pd.read_csv(file),country)
-        print("Control Shape :",control.shape)
-        print("Treated Shape :",treated.shape)
         
-            
+        warnings.warn("Control Shape :"+str(control.shape))
+        warnings.warn("Treated Shape :"+str(treated.shape))
+        
     #pos_en_df_all = treated
     #del treated
     #neg_en_df_all = control
@@ -116,19 +116,15 @@ def GenerateDatasets(datasetsPaths):
     #control['tweet_text']  = neg_en_df_all['tweet_text'].replace(',', '')
     
     print("FINAL SHAPE")
-    print("Control Shape :",control.shape)
-    print("Treated Shape :",treated.shape)
+    warnings.warn("Control Shape :"+str(control.shape))
+    warnings.warn("Treated Shape :"+str(treated.shape))
     
     print("COUNTRIES LIST")
     print("Control",len(control['country'].unique()))
     print("Treated",len(treated['country'].unique()))
-    
-    
-    #control = control.astype(str)
-    #treated = treated.astype(str)
 
-    treated.to_csv("/scratch1/ashwinba/consolidated/treated_consolidated_raw.csv.gz", index=False, compression='gzip')
-    control.to_csv("/scratch1/ashwinba/consolidated/control_consolidated_raw.csv.gz", index=False, compression='gzip')
+    treated.to_csv("/project/muric_789/ashwin/consolidated/treated_consolidated_raw.csv.gz", index=False, compression='gzip')
+    control.to_csv("/project/muric_789/ashwin/consolidated/control_consolidated_raw.csv.gz", index=False, compression='gzip')
 
 root_dir = "/project/ll_774_951/InfoOpsNationwiseDriverControl"
 countries_dir = os.listdir("/project/ll_774_951/InfoOpsNationwiseDriverControl")

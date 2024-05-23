@@ -99,6 +99,13 @@ def get_tweet_timestamp(tid):
         return utcdttime
     except:
         return None  
+        
+        
+def apply_type_cast(x):
+    try:
+        return str(int(x))
+    except:
+        return str(x).strip()
 
 
 def hashSeq(control, treated, minHashtags = 5):
@@ -206,17 +213,21 @@ def hashSeq(control, treated, minHashtags = 5):
     
     # Drop NaN Values
     cum.dropna(inplace=True)
+    cum.dropna(subset=['twitterAuthorScreenname'],inplace=True)
+    
+    cum = cum[cum['twitterAuthorScreenname']!='None']
+    cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].apply(lambda x:apply_type_cast(x))
 
     #userid = dict(zip(list(cum.twitterAuthorScreenname.astype(int).astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
-    #userid = dict(zip(list(cum.twitterAuthorScreenname.astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
+    userid = dict(zip(list(cum.twitterAuthorScreenname.astype(str).unique()), list(range(cum.twitterAuthorScreenname.unique().shape[0]))))
     
     # LabelEncoder Instance
     le = LabelEncoder()
-
+    
     #cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x]).astype(int)
-    #cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x])
-    userids = list(cum.twitterAuthorScreenname.astype(str).unique())
-    cum['twitterAuthorScreenname'] = le.fit_transform(cum['twitterAuthorScreenname'].astype(str))
+    cum['twitterAuthorScreenname'] = cum['twitterAuthorScreenname'].astype(str).apply(lambda x: userid[x])
+    #userids = list(cum.twitterAuthorScreenname.astype(str).unique())
+    #cum['twitterAuthorScreenname'] = le.fit_transform(cum['twitterAuthorScreenname'].astype(str))
     
 
     person_c = pd.CategoricalDtype(sorted(cum.twitterAuthorScreenname.unique()), ordered=True)
@@ -237,10 +248,10 @@ def hashSeq(control, treated, minHashtags = 5):
 
     df_adj = pd.DataFrame(similarities.toarray())
     del similarities
-    #df_adj.index = userid.keys()
-    #df_adj.columns = userid.keys()
-    df_adj.index = userids
-    df_adj.columns = userids
+    df_adj.index = userid.keys()
+    df_adj.columns = userid.keys()
+    #df_adj.index = userids
+    #df_adj.columns = userids
     G = nx.from_pandas_adjacency(df_adj)
     del df_adj
     

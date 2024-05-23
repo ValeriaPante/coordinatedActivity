@@ -7,11 +7,14 @@ import pickle
 import networkx as nx
 import gzip
 
+# Importing coordinatedActivity root directory
+import sys
+sys.path.append('/scratch1/ashwinba/coordinatedActivity/scripts')
+
 from coordinatedActivity.v3_scripts.coURL_v3 import *
 
-root_dir = "/project/ll_774_951/InfoOpsNationwiseDriverControl"
-dataset_dir = "/scratch1/ashwinba/consolidated"
-graph_dir = "/scratch1/ashwinba/graphs"
+dataset_dir = "/project/muric_789/ashwin/consolidated"
+graph_dir = "/project/muric_789/ashwin/outputs"
 
 treated_df = pd.read_csv(os.path.join(dataset_dir,"treated_consolidated_raw.csv.gz"),compression='gzip')
 control_df = pd.read_csv(os.path.join(dataset_dir,"control_consolidated_raw.csv.gz"),compression='gzip')
@@ -28,6 +31,7 @@ treated_df = treated_df[['tweetid', 'userid', 'urls']]
 G = coRetweet(control_df, treated_df)
 
 # Saving Graph in GML File
+#nx.write_gexf(G,os.path.join(graph_dir,"coURL.gexf"))
 nx.write_gml(G,os.path.join(graph_dir,"coURL.gml.gz"))
 
 

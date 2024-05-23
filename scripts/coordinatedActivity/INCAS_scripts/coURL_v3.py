@@ -32,16 +32,11 @@ def coURL(cum):
     cum = cum.loc[cum['urls'] != ''].explode('urls')
    
     cum.drop_duplicates(subset=['userid'],inplace=True)
-    
     cum = cum[['userid','urls']].dropna()
-    
-    print(cum.shape)
 
     temp = cum.groupby('urls', as_index=False).count()
-    print(temp)
-    
 
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>2]['urls'].to_list())]
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>3]['urls'].to_list())]
 
     cum['value'] = 1
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
@@ -64,7 +59,6 @@ def coURL(cum):
     col = cum.urls.astype(thing_c).cat.codes
     sparse_matrix = csr_matrix((cum["value"], (row, col)), shape=(person_c.categories.size, thing_c.categories.size))
     
- 
     warnings.warn("written temp file")
     
     del row, col, person_c, thing_c

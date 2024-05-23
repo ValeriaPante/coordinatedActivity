@@ -55,8 +55,6 @@ def GenerateDatasets(fileDirs):
     #finalDataFrame = finalDataFrame._append(df,ignore_index=True)
     finalDataFrame = df.copy()
     del df
-    print(finalDataFrame.shape)
-    print(finalDataFrame.columns)
 
     author_mappings = dict(zip(list(finalDataFrame['author'].unique()), list(range(finalDataFrame['author'].unique().shape[0])))) 
 

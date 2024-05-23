@@ -20,11 +20,10 @@ from coordinatedActivity.INCAS_scripts.coRetweet_v3 import *
 # file_name = "consolidated_INCAS_0908.csv.gz" # Name of the File to be read
 
 # Phase-2 Directory
-OUTPUT_DIR = "/scratch1/ashwinba/cache/INCAS/phase_2/graphs"
 # Declare directories and file_name
-dataset_dir = "/scratch1/ashwinba/consolidated/INCAS/phase_2" # File Location
-graph_dir = "/scratch1/ashwinba/cache/INCAS/phase_2" #Final destination of graph
-file_name = "consolidated_INCAS_EVAL_2.csv.gz" # Name of the File to be read
+dataset_dir = "/project/muric_789/ashwin/INCAS/processed_data" # File Location
+graph_dir = "/scratch1/ashwinba/new_eval_outputs" #Final destination of graph
+file_name = "consolidated_INCAS_NEW_EVAL_2.csv.gz" # Name of the File to be read
 
 with gzip.open(os.path.join(dataset_dir,file_name)) as f:
     cum_df = pd.read_csv(f)
