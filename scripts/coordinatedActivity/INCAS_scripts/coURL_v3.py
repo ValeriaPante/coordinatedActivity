@@ -36,7 +36,7 @@ def coURL(cum):
 
     temp = cum.groupby('urls', as_index=False).count()
 
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>3]['urls'].to_list())]
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>10]['urls'].to_list())]
 
     cum['value'] = 1
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))

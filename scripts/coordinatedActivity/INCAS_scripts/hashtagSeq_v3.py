@@ -127,7 +127,7 @@ def hashSeq(cum,minHashtags = 2):
     cum.to_csv("hash_grouped.csv")
 
     temp = cum.groupby('hashtag_seq', as_index=False).count()
-    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['author']>1]['hashtag_seq'].to_list())]
+    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['author']>10]['hashtag_seq'].to_list())]
     
     cum['value'] = 1
     
