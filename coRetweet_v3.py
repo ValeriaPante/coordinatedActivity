@@ -13,12 +13,6 @@ from sklearn.preprocessing import LabelEncoder
 
 import warnings
 
-# Data assumptions:
-#   - 2 Pandas dataframes
-#     - control: control dataset -> includes only columns ['user', 'retweeted_status', 'id']
-#     - treated: information Operation dataset -> includes only columns ['tweetid', 'userid', 'retweet_id']
-
-
 # Data Assumption - INCAS
 # - 1 Pandas DataFramee
 
@@ -30,7 +24,8 @@ import warnings
 #       dtype='object')
 
 # Mandatory Columns
-# ['retweet_id','tweet_id','userid']
+# ['retweet_id','tweet_id','userid or author']
+# ['userid' --> numerical encoding of author]
 def coRetweet(cum):
 
     cum.rename({"retweet_tweetid":"retweet_id"},axis=1,inplace=True)

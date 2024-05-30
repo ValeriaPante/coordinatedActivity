@@ -22,7 +22,7 @@ import warnings
 #        'mediaType', 'mediaTypeAttributes', 'name', 'timePublished', 'title',
 #        'url', 'tweetid', 'retweet_id', 'engagementType', 'source_data',
 #        'userid'],
-
+# ['userid' --> numerical encoding of author]
 
 #Downloading Stopwords
 nltk.download('stopwords')
