@@ -10,22 +10,21 @@ import warnings
 import sys
 
 # Importing coordinatedActivity root directory
-sys.path.append('/scratch1/ashwinba/coordinatedActivity/scripts')
+sys.path.append('/scratch1/ashwinba/scripts/coordinatedActivity/scripts')
 
 from coordinatedActivity.INCAS_scripts.textSimilarity_v3 import *
 
-OUTPUT_DIR = "/scratch1/ashwinba/graphs"
+OUTPUT_DIR = "/scratch1/ashwinba/data/temp/text_sim"
 # Declare directories and file_name
 dataset_dir = "/project/muric_789/ashwin/INCAS/processed_data" # File Location
-graph_dir = "/scratch1/ashwinba/new_eval_outputs" #Final destination of graph
+graph_dir = "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators" #Final destination of graph
 file_name = "consolidated_INCAS_NEW_EVAL_2.csv.gz" # Name of the File to be read
 
 with gzip.open(os.path.join(dataset_dir,file_name)) as f:
     cum_df = pd.read_csv(f)
 
 warnings.warn("opened dataframe")
-print(cum_df.columns)
-textSim(cum_df,OUTPUT_DIR)
+#textSim(cum_df,OUTPUT_DIR)
 g = getSimilarityNetwork(OUTPUT_DIR)
 warnings.warn("Similarity Network Recieved")
 

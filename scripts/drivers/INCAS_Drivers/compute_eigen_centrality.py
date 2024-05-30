@@ -6,8 +6,9 @@ import matplotlib.pyplot as plt
 import os
 
 import warnings
+import glob
 
-INCAS_DIR = "/scratch1/ashwinba/cache/INCAS/phase_2/similarity_graphs"
+INCAS_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B/distributions"
 
 def compute_eigen(graph_dir,method):
     try:
@@ -17,9 +18,9 @@ def compute_eigen(graph_dir,method):
         centrality = nx.eigenvector_centrality(G)
         plot_cdf_curve(list(centrality.values()),method)
         #plot_pdf_curve(list(centrality.values()),method)
-        centrality_dict =  {key:{'eigen_centrality':centrality[key]} for key in list(centrality.keys())}
-        nx.set_node_attributes(G,centrality_dict)
-        nx.write_gexf(G,os.path.join(INCAS_DIR,"{METHOD}_INCAS_TA2_eigen.gexf".format(METHOD=method)))
+        #centrality_dict =  {key:{'eigen_centrality':centrality[key]} for key in list(centrality.keys())}
+        #nx.set_node_attributes(G,centrality_dict)
+        #nx.write_gexf(G,os.path.join(INCAS_DIR,"{METHOD}_INCAS_TA2_eigen.gexf".format(METHOD=method)))
         warnings.warn("Method {METHOD} completed".format(METHOD=method))
     except Exception as e:
         print(e)
@@ -71,25 +72,17 @@ def plot_pdf_curve(values,method):
     plt.savefig(os.path.join(INCAS_DIR,"{METHOD}_PDF.png".format(METHOD=method)))
     plt.show()
 
-#graph_dir = "/scratch1/ashwinba/cache/INCAS/coRetweet_INCAS.gexf"
-#compute_eigen(graph_dir,"coRetweet")
 
+PATH =  "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators"
 
-graph_root_dir = "/scratch1/ashwinba/cache/INCAS/phase_2"
-#graphs = {"coRetweet":"coRetweet_INCAS.gexf","textsimilarity":"textsim_INCAS.gexf","fastretweet":"fastretweet_INCAS.gexf","hashSeq":"hashSeq_INCAS.gexf","fusednetwork":"fusedNetwork.gexf"}
-#graphs = {"coRetweet":"coRetweet_INCAS_TA2.gexf"}
-#graphs = {"textsim":"textsim_INCAS_T2.gexf"}
+# Fused
+PATH =  "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/fused"
 
-#graphs = {"hashseq_min_3":"hashSeq_INCAS_TA2_min_hashtags_3.gexf"}
-# graphs = {"coURL_min_2":"coURL_INCAS_TA2_1.gexf","coURL_min_3":"coURL_INCAS_TA2_1_min_3.gexf"}
-#graphs = {"textSim":"textsim_INCAS_T2_V1.gexf"}
-graphs = {"fusedNetwork":"fused_network/fused_removed_network.gexf"}
-for method,graph_dir in graphs.items():
-    compute_eigen(os.path.join(graph_root_dir,graph_dir),method)
-    
+graphs = glob.glob(os.path.join(PATH,"*.gexf"))
 
-
-
+for method in graphs:
+    method_name = os.path.basename(method).split("_INCAS")[0]
+    compute_eigen(method,method_name)
 
 
 

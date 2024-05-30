@@ -3,10 +3,12 @@ import glob
 import os
 import pandas as pd
 
+from sklearn.preprocessing import MinMaxScaler
+
 import warnings
 
-GRAPH_DIR = "/project/muric_789/ashwin/outputs"
-ROOT_DIR = "/project/muric_789/ashwin/outputs"
+OUTPUT_GRAPH_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/fused"
+ROOT_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators"
 
 def read_graph(graph_dir,graph_type='gexf'):
     warnings.warn("read "+graph_dir)
@@ -28,21 +30,26 @@ def generate_fused_networks(graphs_root_dir, weighted=False,graph_type='gexf'):
     Returns:
         M: merged network
     """
-
     graphs = []
     graph_types = {'gexf':"*.gexf",'gml':"*.gml.gz"}
     graphs_dir = glob.glob(os.path.join(graphs_root_dir,graph_types[graph_type]))
     singleFeatureNets = [read_graph(g_dir,graph_type) for g_dir in graphs_dir]
+    
+    
+    minmax = MinMaxScaler()
 
     for net in singleFeatureNets:
         if weighted:
             df = pd.DataFrame(net.edges(data='weight'))
+            df.columns  = ['source', 'target', 'weight']
+            df[['weight']] = minmax.fit_transform(df[['weight']])
         else:
+            df.columns = ['source','target']
             df = pd.DataFrame(net.edges())
         graphs.append(df)
 
     temp = pd.concat([df for df in graphs])
-    temp = temp.loc[temp[0]!=temp[1]]
+    temp = temp.loc[temp['source']!=temp['target']]
     
     if weighted:
         temp.columns = ['source', 'target', 'weight']
@@ -57,7 +64,7 @@ def generate_fused_networks(graphs_root_dir, weighted=False,graph_type='gexf'):
     else:
         M = nx.from_pandas_edgelist(temp)
     
-    nx.write_gexf(M,os.path.join(GRAPH_DIR,"fusedNetwork.gexf"))
+    nx.write_gexf(M,os.path.join(OUTPUT_GRAPH_DIR,"fusedNetwork.gexf"))
     return M
 
 def generate_fused_networks_ashwin(graphs_root_dir):
@@ -74,7 +81,7 @@ def generate_fused_networks_ashwin(graphs_root_dir):
     #fusedGraph = fusedGraph.remove_edges_from(list(nx.selfloop_edges(fusedGraph)))
     
     warnings.warn(str(len(list(fusedGraph.nodes))))
-    nx.write_gexf(fusedGraph,os.path.join(GRAPH_DIR,"fusedNetwork.gexf.gz"))
+    nx.write_gexf(fusedGraph,os.path.join(OUTPUT_GRAPH_DIR,"fusedNetwork.gexf.gz"))
 
 # Generate fused network
-generate_fused_networks(ROOT_DIR,graph_type='gml')
+generate_fused_networks(ROOT_DIR,graph_type='gexf',weighted=True)

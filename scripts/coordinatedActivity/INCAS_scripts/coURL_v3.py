@@ -28,6 +28,7 @@ def coURL(cum):
     
     cum.dropna(subset=['embeddedUrls'],inplace=True)
     
+    cum = cum[cum['engagementType']!='retweet']
     cum['urls'] = cum['embeddedUrls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
     cum = cum.loc[cum['urls'] != ''].explode('urls')
    
@@ -36,11 +37,12 @@ def coURL(cum):
 
     temp = cum.groupby('urls', as_index=False).count()
 
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>10]['urls'].to_list())]
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>15]['urls'].to_list())]
 
     cum['value'] = 1
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))
     cum['urls'] = cum['urls'].apply(lambda x: urls[x]).astype(int)
+    
     del urls
     warnings.warn("initiated urls")
 
@@ -80,22 +82,23 @@ def coURL(cum):
     
     warnings.warn("Calculated df adj")
 
-    del similarities
+    #del similarities
     #df_adj.index = list(set(le.inverse_transform(cum['userid'].values)))
     #df_adj.columns = list(set(le.inverse_transform(cum['userid'].values)))
     df_adj.index = userid.keys()
     df_adj.columns = userid.keys()
     
     G = nx.from_pandas_adjacency(df_adj)
-    del df_adj
+    # G = nx.from_scipy_sparse_array(similarities)
+    # nodes = list(G.nodes)
+    # mappings = dict(zip(nodes,list(userid.keys())))
     
+    # nx.relabel_nodes(G,mappings)
+
+    del df_adj
     warnings.warn("constructed adj matrix")
     
     G.remove_nodes_from(list(nx.isolates(G)))
     G.remove_edges_from(nx.selfloop_edges(G))
 
     return G
-
-
-
-

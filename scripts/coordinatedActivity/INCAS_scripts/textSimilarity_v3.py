@@ -268,7 +268,7 @@ def textSim(cum,outputDir):
     
             sim_score_temp_df = sim_score_df[sim_score_df.sim_score >= threshold]
     
-            text_sim_network = sim_score_temp_df[['source_user','target_user']]
+            text_sim_network = sim_score_temp_df[['source_user','target_user','sim_score']]
             text_sim_network = text_sim_network.drop_duplicates(subset=['source_user','target_user'], keep='first')
     
             outputfile = outputDir + '/threshold_' + str(threshold) + '_'+str(i)+'.csv'
@@ -321,17 +321,20 @@ def getSimilarityNetwork(inputDir):
             combined = pd.read_csv(os.path.join(inputDir,l[0]))
             # Dropping NaN Records
             combined.dropna(inplace=True)
-            combined['weight'] = thr
+            #combined['weight'] = thr
+            combined['weight'] = combined['sim_score']
             combined = combined[['weight','source_user','target_user']]
             i += 1
             for o in l[1:]:
                 temp = pd.read_csv(os.path.join(inputDir,o))
-                temp['weight'] = thr
+                #temp['weight'] = thr
+                temp['weight'] = temp['sim_score']
                 combined = pd.concat([combined, temp],ignore_index=True)
         else:
             for o in l:
                 temp = pd.read_csv(os.path.join(inputDir,o))
-                temp['weight'] = thr
+                #temp['weight'] = thr
+                temp['weight'] = temp['sim_score']
                 combined = pd.concat([combined, temp],ignore_index=True)
 
     combined['source_user'] = combined['source_user'].apply(lambda x: str(x).strip())
@@ -342,7 +345,7 @@ def getSimilarityNetwork(inputDir):
     combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)
     
     warnings.warn("written csv file")
-    combined.to_csv("/scratch1/ashwinba/cache/INCAS/text_sim_temp.csv")
+    #combined.to_csv("/scratch1/ashwinba/cache/INCAS/text_sim_temp.csv")
 
     G = nx.from_pandas_edgelist(combined, source='source_user', target='target_user', edge_attr=['weight'])
     
