@@ -5,8 +5,8 @@ import pandas as pd
 
 import warnings
 
-GRAPH_DIR = "/project/muric_789/ashwin/outputs"
-ROOT_DIR = "/project/muric_789/ashwin/outputs"
+GRAPH_DIR = ""
+ROOT_DIR = ""
 
 def read_graph(graph_dir,graph_type='gexf'):
     warnings.warn("read "+graph_dir)
