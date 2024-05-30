@@ -26,6 +26,7 @@ import warnings
 # Mandatory Columns
 # ['retweet_id','tweet_id','userid or author']
 # ['userid' --> numerical encoding of author]
+
 def coRetweet(cum):
 
     cum.rename({"retweet_tweetid":"retweet_id"},axis=1,inplace=True)
