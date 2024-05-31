@@ -185,6 +185,10 @@ def textSim(cum,outputDir):
 
     warnings.warn(str(cum.columns))
     cum = cum[cum['engagementType'] != 'retweet']
+    
+    filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
+    filt = list(filt.loc[filt['tweetid'] >= 10]['userid'])
+    cum = cum.loc[cum['userid'].isin(filt)]
 
     # Changing colummns
     cum.rename(columns={'engagementType':'tweet_type','contentText':'tweet_text'},inplace=True)
