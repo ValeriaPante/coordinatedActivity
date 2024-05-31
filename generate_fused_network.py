@@ -5,8 +5,8 @@ import pandas as pd
 
 import warnings
 
-GRAPH_DIR = "/project/muric_789/ashwin/outputs"
-ROOT_DIR = "/project/muric_789/ashwin/outputs"
+GRAPH_DIR = ""
+ROOT_DIR = ""
 
 def read_graph(graph_dir,graph_type='gexf'):
     warnings.warn("read "+graph_dir)
@@ -59,22 +59,6 @@ def generate_fused_networks(graphs_root_dir, weighted=False,graph_type='gexf'):
     
     nx.write_gexf(M,os.path.join(GRAPH_DIR,"fusedNetwork.gexf"))
     return M
-
-def generate_fused_networks_ashwin(graphs_root_dir):
-    graphs_dir = glob.glob(os.path.join(graphs_root_dir,"*.gexf"))
-    graphs = [read_graph(g_dir) for g_dir in graphs_dir]
-    
-    #fusedGraph = nx.disjoint_union_all(graphs)
-    fusedGraph = nx.Graph()
-    for graph in graphs:
-        fusedGraph.add_edges_from(graph.edges())
-        fusedGraph.add_nodes_from(graph.nodes())
-
-    # Removing Loops
-    #fusedGraph = fusedGraph.remove_edges_from(list(nx.selfloop_edges(fusedGraph)))
-    
-    warnings.warn(str(len(list(fusedGraph.nodes))))
-    nx.write_gexf(fusedGraph,os.path.join(GRAPH_DIR,"fusedNetwork.gexf.gz"))
 
 # Generate fused network
 generate_fused_networks(ROOT_DIR,graph_type='gml')
