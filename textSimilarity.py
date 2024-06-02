@@ -371,7 +371,7 @@ def getSimilarityNetwork(inputDir):
     combined = combined.groupby(['source_user','target_user'], as_index=False).sum()
     combined['weight'] = combined['weight']/combined['count']
     
-    G = nx.from_pandas_edgelist(combined, source='source_user', target='target_user', edge_attr=['weight'])
+    G = nx.from_pandas_edgelist(combined[['source_user','target_user','weight']], source='source_user', target='target_user', edge_attr=['weight'])
             
     return G
         
