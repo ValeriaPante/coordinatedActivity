@@ -314,11 +314,13 @@ def textSim(datasetsPaths, outputDir):
     
             print("Threshold: ", threshold)
     
-            sim_score_temp_df = sim_score_df[sim_score_df.sim_score >= threshold]
+            sim_score_temp_df = sim_score_df[(sim_score_df.sim_score >= threshold)&(sim_score_df.sim_score < threshold+0.05)]
     
             text_sim_network = sim_score_temp_df[['source_user','target_user']]
-            text_sim_network = text_sim_network.drop_duplicates(subset=['source_user','target_user'], keep='first')
-    
+            text_sim_network = pd.DataFrame(text_sim_network.value_counts(subset=(['source_user','target_user'])))
+            text_sim_network.reset_index(inplace=True)
+            text_sim_network.columns = ['source_user','target_user', 'count']
+        
             outputfile = outputDir + '/threshold_' + str(threshold) + '_'+str(i)+'.csv'
             text_sim_network.to_csv(outputfile)
 
@@ -364,8 +366,11 @@ def getSimilarityNetwork(inputDir):
                 temp['weight'] = thr
                 combined = pd.concat([combined, temp])
     
-    combined.sort_values(by='weight', ascending=False, inplace=True)
-    combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)   
+    combined = combined.groupby(['source_user','target_user','weight'], as_index=False).sum()
+    combined['weight'] = combined['weight']*combined['count']
+    combined = combined.groupby(['source_user','target_user'], as_index=False).sum()
+    combined['weight'] = combined['weight']/combined['count']
+    
     G = nx.from_pandas_edgelist(combined, source='source_user', target='target_user', edge_attr=['weight'])
             
     return G
