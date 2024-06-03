@@ -89,6 +89,7 @@ def GenerateDatasets(fileDirs):
     
     # Sorting cum based on timePublished
     finalDataFrame.sort_values(by=['timePublished'], inplace=True)
+    finalDataFrame.loc[cum["engagementType"] !="retweet", "retweet_id"] = np.nan
 
     warnings.warn("File Consolidated")
     finalDataFrame.to_csv(os.path.join(

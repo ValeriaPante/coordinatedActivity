@@ -10,7 +10,7 @@ import seaborn as sns
 
 import warnings
 
-OUTPUT_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B/distributions"
+OUTPUT_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B_SAMPLE/distributions"
 colors = ['green','blue','red','yellow','black','gray']
 
 def plot_distribution(G,method='coretweet',percentiles=[90,99,99.5]):
@@ -39,20 +39,20 @@ def plot_distribution(G,method='coretweet',percentiles=[90,99,99.5]):
     plt.legend(loc='best')
     plt.savefig(os.path.join(OUTPUT_DIR,f'{method}_EDGE_CDF.png'))
 
-GRAPHS_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators"
+GRAPHS_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B_SAMPLE/indicators"
 
 # Fused
 #GRAPHS_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/fused"
 graphs = glob.glob(os.path.join(GRAPHS_DIR,"*.gexf"))
 
-graphs = [
-    '/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/hashSeq_INCAS_TA2_minhash_4.gexf',
-    '/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/hashSeq_INCAS_TA2_minhash_3.gexf'
-    ]
+# graphs = [
+#     '/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/hashSeq_INCAS_TA2_minhash_4.gexf',
+#     '/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/hashSeq_INCAS_TA2_minhash_3.gexf'
+#     ]
 
 for graph in graphs:
     warnings.warn(f'Processing {graph}')
     G = nx.read_gexf(graph)
     method = os.path.basename(graph).split('.gexf')[0]
-    plot_distribution(G,method,percentiles=[1,5,20,40,70,80,90,99,99.5,99.9])
+    plot_distribution(G,method,percentiles=[99.5,99.9,99.99])
     del G

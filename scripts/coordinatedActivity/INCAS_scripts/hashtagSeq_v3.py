@@ -109,25 +109,30 @@ def get_tweet_timestamp(tid):
 def hashSeq(cum,minHashtags = 3):
     warnings.warn("Hashtags :"+str(minHashtags))
     warnings.warn(str(cum.columns))
-    
-    cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
 
+    cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
+    
     if("is_retweet" in cum.columns):
         cum = cum.loc[cum['is_retweet'] != "TRUE"]
         cum = cum.loc[cum['is_retweet'] != True]
     else:
         cum = cum.loc[cum['engagementType'] != 'retweet']
-    
+
     cum = preprocess_text(cum)
     cum['contentText'] = cum['contentText'].astype(str).apply(lambda x: msg_clean(x))
-
+    
     cum['hashtag_seq'] = ['__'.join([tag.strip("#") for tag in tweet.split() if tag.startswith("#")]) for tweet in cum['contentText'].values.astype(str)]
     cum.drop(['contentText'], axis=1, inplace=True)
+    
     cum = cum[['hashtag_seq','userid']].loc[cum['hashtag_seq'].apply(lambda x: len(x.split('__'))) >= minHashtags]
     cum.to_csv("hash_grouped.csv")
-
+    
+    filt = cum[['userid', 'hashtag_seq']].groupby(['userid'],as_index=False).count()
+    filt = list(filt.loc[filt['hashtag_seq'] >= 10]['userid'])
+    cum = cum.loc[cum['userid'].isin(filt)]
+    
     temp = cum.groupby('hashtag_seq', as_index=False).count()
-    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['userid']>9]['hashtag_seq'].to_list())]
+    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['userid']>10]['hashtag_seq'].to_list())]
     
     cum['value'] = 1
     

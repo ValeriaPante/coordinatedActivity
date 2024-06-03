@@ -28,16 +28,20 @@ def coURL(cum):
     
     cum.dropna(subset=['embeddedUrls'],inplace=True)
     
+    
     cum = cum[cum['engagementType']!='retweet']
     cum['urls'] = cum['embeddedUrls'].astype(str).replace('[]', '').apply(lambda x: x[1:-1].replace("'", '').split(',') if len(x) != 0 else '')
     cum = cum.loc[cum['urls'] != ''].explode('urls')
+    
+    filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
+    filt = list(filt.loc[filt['tweetid'] >= 10]['userid'])
+    cum = cum.loc[cum['userid'].isin(filt)]
    
     cum.drop_duplicates(subset=['userid'],inplace=True)
     cum = cum[['userid','urls']].dropna()
 
     temp = cum.groupby('urls', as_index=False).count()
-
-    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>15]['urls'].to_list())]
+    cum = cum.loc[cum['urls'].isin(temp.loc[temp['userid']>1]['urls'].to_list())]
 
     cum['value'] = 1
     urls = dict(zip(list(cum.urls.unique()), list(range(cum.urls.unique().shape[0]))))

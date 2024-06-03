@@ -109,6 +109,7 @@ def get_tweet_timestamp(tid):
 def hashSeq(cum,minHashtags = 3):
     warnings.warn("Hashtags :"+str(minHashtags))
     warnings.warn(str(cum.columns))
+
     
     cum.rename({"tweet_text":"contentText","user_screen_name":"author"},axis=1,inplace=True)
 
@@ -127,7 +128,7 @@ def hashSeq(cum,minHashtags = 3):
     cum.to_csv("hash_grouped.csv")
 
     temp = cum.groupby('hashtag_seq', as_index=False).count()
-    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['userid']>9]['hashtag_seq'].to_list())]
+    cum = cum.loc[cum['hashtag_seq'].isin(temp.loc[temp['userid']>1]['hashtag_seq'].to_list())]
     
     cum['value'] = 1
     

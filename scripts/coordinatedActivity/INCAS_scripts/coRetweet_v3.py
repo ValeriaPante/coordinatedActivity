@@ -35,24 +35,19 @@ def coRetweet(cum):
 
     cum.rename({"retweet_tweetid":"retweet_id"},axis=1,inplace=True)
 
-    warnings.warn("came in")
-
+    cum.loc[cum["engagementType"] !="retweet", "retweet_id"] = np.nan
     cum.dropna(subset=['retweet_id'],inplace=True)
     
     #cum = cum.rename(index=str,columns={'id':'tweetid'})
 
     filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
-    filt = list(filt.loc[filt['tweetid'] >= 20]['userid'])
+    filt = list(filt.loc[filt['tweetid'] >= 10]['userid'])
     cum = cum.loc[cum['userid'].isin(filt)]
     cum = cum[['userid', 'retweet_id']].drop_duplicates()
     
     del filt
 
     temp = cum.groupby('retweet_id', as_index=False).count()
-    print("Grouped")
-    print(len(cum['retweet_id'].unique()))
-    print(cum.groupby('retweet_id')['retweet_id'].count())
-    print(cum.groupby(cum['retweet_id']).filter(lambda x: len(x) > 1).value_counts())
     # cum = cum.loc[cum['retweet_id'].isin(temp.loc[temp['userid']>1]['retweet_id'].to_list())]
     cum = cum.loc[cum['retweet_id'].isin(temp.loc[temp['userid']>=10]['retweet_id'].to_list())]
 

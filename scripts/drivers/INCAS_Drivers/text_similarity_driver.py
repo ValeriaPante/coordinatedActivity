@@ -17,7 +17,7 @@ from coordinatedActivity.INCAS_scripts.textSimilarity_v3 import *
 OUTPUT_DIR = "/scratch1/ashwinba/data/temp/text_sim"
 # Declare directories and file_name
 dataset_dir = "/project/muric_789/ashwin/INCAS/processed_data" # File Location
-graph_dir = "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators" #Final destination of graph
+graph_dir = "/scratch1/ashwinba/data/INCAS/EVAL_2B_SAMPLE/indicators" #Final destination of graph
 file_name = "consolidated_INCAS_NEW_EVAL_2.csv.gz" # Name of the File to be read
 
 with gzip.open(os.path.join(dataset_dir,file_name)) as f:
@@ -25,9 +25,10 @@ with gzip.open(os.path.join(dataset_dir,file_name)) as f:
 
 warnings.warn("opened dataframe")
 #textSim(cum_df,OUTPUT_DIR)
-g = getSimilarityNetwork(OUTPUT_DIR)
+agg = 'max'
+g = getSimilarityNetwork(OUTPUT_DIR,agg=agg)
 warnings.warn("Similarity Network Recieved")
 
 # Saving Graph in GML File
-nx.write_gexf(g,os.path.join(graph_dir,"textsim_INCAS_T2_V1.gexf"))
+nx.write_gexf(g,os.path.join(graph_dir,f'textsim_INCAS_T2_V1_{agg}.gexf'))
 warnings.warn("Sim Network Written")

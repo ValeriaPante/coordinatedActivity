@@ -184,7 +184,11 @@ def textSim(cum,outputDir):
     os.mkdir(outputDir)
 
     warnings.warn(str(cum.columns))
-    #cum = cum[cum['engagementType'] != 'retweet']
+    cum = cum[cum['engagementType'] != 'retweet']
+    
+    filt = cum[['userid', 'tweetid']].groupby(['userid'],as_index=False).count()
+    filt = list(filt.loc[filt['tweetid'] >= 10]['userid'])
+    cum = cum.loc[cum['userid'].isin(filt)]
 
     # Changing colummns
     cum.rename(columns={'engagementType':'tweet_type','contentText':'tweet_text'},inplace=True)
@@ -281,7 +285,7 @@ def textSim(cum,outputDir):
 
 # to run after the textSim function
 # inputDir: path of the directory containing the similarity files; it corresponds to the outputDir used in the textSim function
-def getSimilarityNetwork(inputDir):
+def getSimilarityNetwork(inputDir,agg='max'):
 
     global combined_tweets_df
     
@@ -340,15 +344,13 @@ def getSimilarityNetwork(inputDir):
     combined['source_user'] = combined['source_user'].apply(lambda x: str(x).strip())
     combined['target_user'] = combined['target_user'].apply(lambda x: str(x).strip())
     
-    
-    combined.sort_values(by='weight', ascending=False, inplace=True)
-    combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)
-    
-    warnings.warn("written csv file")
-    #combined.to_csv("/scratch1/ashwinba/cache/INCAS/text_sim_temp.csv")
-
+    if(agg == 'max'):
+        combined.sort_values(by='weight', ascending=False, inplace=True)
+        combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)
+    else:
+        combined  = combined.groupby(['source_user','target_user'],as_index=False)['weight'].mean()
+        
     G = nx.from_pandas_edgelist(combined, source='source_user', target='target_user', edge_attr=['weight'])
-    
     warnings.warn("written gml file")
 
     return G

@@ -8,7 +8,7 @@ import os
 import warnings
 import glob
 
-INCAS_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B/distributions"
+INCAS_DIR = "/scratch1/ashwinba/data/INCAS/EVAL_2B_SAMPLE/distributions"
 
 def compute_eigen(graph_dir,method):
     try:
@@ -73,10 +73,10 @@ def plot_pdf_curve(values,method):
     plt.show()
 
 
-PATH =  "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators"
+PATH =  "/scratch1/ashwinba/data/INCAS/EVAL_2B_SAMPLE/indicators"
 
 # Fused
-PATH =  "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/fused"
+# PATH =  "/scratch1/ashwinba/data/INCAS/EVAL_2B/indicators/fused"
 
 graphs = glob.glob(os.path.join(PATH,"*.gexf"))
 
