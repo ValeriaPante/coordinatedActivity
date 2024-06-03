@@ -285,7 +285,7 @@ def textSim(cum,outputDir):
 
 # to run after the textSim function
 # inputDir: path of the directory containing the similarity files; it corresponds to the outputDir used in the textSim function
-def getSimilarityNetwork(inputDir):
+def getSimilarityNetwork(inputDir,agg='avg'):
 
     global combined_tweets_df
     
@@ -340,11 +340,13 @@ def getSimilarityNetwork(inputDir):
 
     combined['source_user'] = combined['source_user'].apply(lambda x: str(x).strip())
     combined['target_user'] = combined['target_user'].apply(lambda x: str(x).strip())
-    
-    
-    combined.sort_values(by='weight', ascending=False, inplace=True)
-    combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)
-    
+
+    if(agg == 'max'):
+        combined.sort_values(by='weight', ascending=False, inplace=True)
+        combined.drop_duplicates(subset=['source_user', 'target_user'], inplace=True)
+    else:
+        combined  = combined.groupby(['source_user','target_user'],as_index=False)['weight'].mean()
+
     warnings.warn("written csv file")
     combined.to_csv("/scratch1/ashwinba/cache/INCAS/text_sim_temp.csv")
 
