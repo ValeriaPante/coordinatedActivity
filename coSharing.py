@@ -7,7 +7,7 @@ from scipy.sparse import csr_matrix
 from pandas.api.types import CategoricalDtype
 
 # Data assumptions:
-#   - data: Pandas dataframe with columns ['post_id', 'userid', 'feature_shared']   
+#   - data: Pandas dataframe with columns ['userid', 'feature_shared']   
 
 def coSharing(data):
 
