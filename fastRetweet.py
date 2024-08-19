@@ -42,16 +42,11 @@ def fastRetweet(control, treated, timeInterval = 10):
 
         
     cumulative = pd.concat([treated[['userid', 'retweet_userid', 'delta']], control[['userid','retweet_userid', 'delta']]])
-    cumulative['userid'].astype(int).astype(str)
+    cumulative['userid'] = cumulative['userid'].astype(int).astype(str)
     cumulative = cumulative.loc[cumulative['delta'] <= timeInterval]
     
     cumulative = cumulative.groupby(['userid', 'retweet_userid'],as_index=False).count()
-    cumulative = cumulative.loc[cumulative['delta'] > 1]
-    
-    cum = nx.from_pandas_edgelist(cumulative, 'userid', 'retweet_userid','delta')
-
-    cum['userid'].astype(int).astype(str)
-    cum = cum.loc[cum['delta'] > 1]
+    cum = cumulative.loc[cumulative['delta'] > 1]
     
     urls = dict(zip(list(cum.retweet_userid.unique()), list(range(cum.retweet_userid.unique().shape[0]))))
     cum['retweet_userid'] = cum['retweet_userid'].apply(lambda x: urls[x]).astype(int)
