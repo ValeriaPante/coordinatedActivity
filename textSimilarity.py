@@ -195,9 +195,10 @@ def create_sim_score_df(lims,D,I,search_query1):
 # Data assumptions:
 #   - datasetsPaths: list containing the absolute paths referring to the datasets to analyze (no distiction between control and information operations ones)
 #   - outputDir: directory where to save temporary files
+#   - timeWindow: time window to compare tweets
 # To solve computational issues, the function will create multiple output files of users sharing similar texts that will need to then be merged into a network using the getSimilarityNetwork function (see below)
 
-def textSim(datasetsPaths, outputDir):
+def textSim(datasetsPaths, outputDir, timeWindow):
     for file in datasetsPaths:
         if 'control' in file:
             if file[-2:] == 'gz':
@@ -255,8 +256,8 @@ def textSim(datasetsPaths, outputDir):
     
     while date <= finalDate:
         
-        pos_en_df = pos_en_df_all.loc[(pos_en_df_all['tweet_time'].dt.date >= date)&(pos_en_df_all['tweet_time'].dt.date < date+timedelta(days=1))]
-        neg_en_df = neg_en_df_all.loc[(neg_en_df_all['tweet_time'].dt.date >= date)&(neg_en_df_all['tweet_time'].dt.date < date+timedelta(days=1))]
+        pos_en_df = pos_en_df_all.loc[(pos_en_df_all['tweet_time'].dt.date >= date)&(pos_en_df_all['tweet_time'].dt.date < date+timedelta(days=timeWindow))]
+        neg_en_df = neg_en_df_all.loc[(neg_en_df_all['tweet_time'].dt.date >= date)&(neg_en_df_all['tweet_time'].dt.date < date+timedelta(days=timeWindow))]
     
         actual_pos_user = pos_en_df.userid.unique()
         actual_neg_user = neg_en_df.userid.unique()
