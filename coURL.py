@@ -7,7 +7,14 @@ from sklearn.metrics.pairwise import cosine_similarity
 # Data assumptions:
 #   - 2 Pandas dataframes
 #     - control: control dataset -> includes only columns ['user', 'entities', 'id']
+#                                 -- 'user' column must be a dictionary having a key 'id' (user id) whose value is of type str
+#                                 -- 'entities' column must be a dictionary having a key 'urls' of type list
+#                                 -- 'id' is the integer tweet id
 #     - treated: information Operation dataset -> includes only columns ['tweetid', 'userid', 'urls']
+#                                 -- 'tweetid' is of type int
+#                                 -- 'userid' is of type str
+#                                 -- 'urls' is the list of urls in type str (e.g., "['url1','url2','url3']"
+
 
 def coURL(control, treated):
     control.dropna(inplace=True)
