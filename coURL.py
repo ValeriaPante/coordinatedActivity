@@ -9,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 #     - control: control dataset -> includes only columns ['user', 'entities', 'id']
 #     - treated: information Operation dataset -> includes only columns ['tweetid', 'userid', 'urls']
 
-def coRetweet(control, treated):
+def coURL(control, treated):
     control.dropna(inplace=True)
     
     control['userid'] = control['user'].apply(lambda x: dict(x)['id'])
